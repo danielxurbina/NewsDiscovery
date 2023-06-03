@@ -1,3 +1,5 @@
+// UCID: du35
+// Date: 6/3/2023
 <?php
 $a1 = [-1, -2, -3, -4, -5, -6, -7, -8, -9, -10];
 $a2 = [-1, 1, -2, 2, 3, -3, -4, 5];
@@ -9,6 +11,22 @@ function bePositive($arr) {
     echo "<br>Positive output:<br>";
     //TODO use echo to output all of the values as positive (even if they were originally positive) 
     //hint: may want to use var_dump() to show final data types
+    foreach($arr as $value){
+        if(is_string($value)){
+            $value = intval($value);
+            $value = abs($value);
+            $value = strval($value);
+            echo $value . ',';
+        }
+        elseif(is_float($value)){
+            $value = abs($value);
+            echo $value . ',';
+        }
+        else{
+            $value = abs($value);
+            echo $value . ',';
+        }
+    }
 }
 echo "Problem 3: Be Positive<br>";
 ?>

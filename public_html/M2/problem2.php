@@ -1,3 +1,5 @@
+// UCID: du35
+// Date: 6/3/2023
 <?php
 $a1 = [10.001, 11.591, 0.011, 5.991, 16.121, 0.131, 100.981, 1.001];
 $a2 = [1.99, 1.99, 0.99, 1.99, 0.99, 1.99, 0.99, 0.99];
@@ -7,7 +9,12 @@ function getTotal($arr) {
     echo "<br>Processing Array:<br><pre>" . var_export($arr, true) . "</pre>";
     $total = 0.00;
     //TODO do adding here
+    foreach ($arr as $value) {
+        $total += $value;
+    }
     //TODO do rounding stuff here
+    $converted_number = number_format($total, 2, '.', ',');
+    $total = '$' . $converted_number;
     echo "The total is " . var_export($total, true);
 }
 echo "Problem 2: Adding Floats<br>";

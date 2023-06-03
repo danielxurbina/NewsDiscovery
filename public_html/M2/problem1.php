@@ -1,3 +1,5 @@
+// UCID: du35
+// Date: 6/2/2023
 <?php
 $a1 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 $a2 = [0, 1, 3, 5, 7, 9, 2, 4, 6, 8, 10];
@@ -8,7 +10,11 @@ function processArray($arr) {
     echo "<br>Odds output:<br>";
     //note: use the $arr variable to iterate over, don't directly touch $a1-$a4
     //TODO add logic here to echo out only odd values
-
+    foreach ($arr as $value) {
+        if ($value % 2 == 1) {
+            echo $value . ',';
+        }
+    }
 }
 echo "Problem 1: Odd Output<br>";
 ?>
