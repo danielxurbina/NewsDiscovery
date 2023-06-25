@@ -30,22 +30,22 @@
 		//TODO 3: validate/use
         $hasError = false;
         if(empty($email)){
-            echo "Email must not be empty";
+            flash("Email must not be empty");
             $hasError = true;
         }
         // sanitize
         $email = sanitize_email($email);
         //validate
         if(!is_valid_email($email)){
-            echo "Invalid email address";
+            flash("Invalid email address");
             $hasError = true;
         }
         if(empty($password)){
-            echo "password must not be empty";
+            flash("password must not be empty");
             $hasError = true;
         }
         if(strlen($password) < 8) {
-            echo "Password too short";
+            flash("Password too short");
             $hasError = true;
         }
         if(!$hasError){
@@ -60,19 +60,20 @@
                         $hash = $user["password"];
                         unset($user["password"]);
                         if(password_verify($password, $hash)){
-                            echo "Welcome $email";
+                            flash("Welcome $email");
                             $_SESSION["user"] = $user;
                             die(header("Location: home.php"));
                         } else {
-                            echo "Invalid password";
+                            flash("Invalid password");
                         }
                     } else {
-                        echo "Email not found";
+                        flash("Email not found");
                     }
                 }
             } catch(Exception $e){
-                echo "<pre>" . var_export($e, true) . "</pre>";
+                flash("<pre>" . var_export($e, true) . "</pre>");
             } 
         }
 	}
 ?>
+<?php require_once(__DIR__. "/../../partials/flash.php");
