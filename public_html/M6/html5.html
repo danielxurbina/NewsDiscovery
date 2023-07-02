@@ -32,18 +32,18 @@
         var y = 100; // Y position
         var speed = 6; // Distance to move each frame
         var sideLength = 50; // Length of each side of the square
-        
-        // Properties for the target square
-        var target1_X = 0;
-        var target1_Y = 0;
-        var target1_Length = 25;
-        var target2_X = 0;
-        var target2_Y = 0;
-        var target2_Length = 25;
         // Countdown timer (in seconds)
         var countdown = 30;
         // ID to track the setTimeout
         var id = null;
+        
+        // Properties for the target square
+        var goodTarget_X = 0;
+        var goodTarget_Y = 0;
+        var goodTargetLength = 25;
+        var badTarget_X = 0;
+        var badTarget_Y = 0;
+        var badTargetLength = 25;
         // Number to check current lives
         var currentLives = 3;
             
@@ -134,6 +134,8 @@
             context.fillText('Click to Start', canvas.width / 2, canvas.height / 2);
             context.font = '18px Arial'
             context.fillText('Use the arrow keys to move', canvas.width / 2, (canvas.height / 4) * 3);
+            context.font = '18px Arial'
+            context.fillText('Red for bad target, Green for good target', canvas.width / 2, (canvas.height / 4) * 3 + 25);
             // Start the game on a click
             canvas.addEventListener('click', startGame);
         }
@@ -173,10 +175,10 @@
         
         // Move the target square to a random position
         function moveTarget() {
-            target1_X = Math.round(Math.random() * canvas.width - target1_Length);
-            target1_Y = Math.round(Math.random() * canvas.height - target1_Length);
-            target2_X = Math.round(Math.random() * canvas.width - target2_Length);
-            target2_Y = Math.round(Math.random() * canvas.height - target2_Length);
+            goodTarget_X = Math.round(Math.random() * canvas.width - goodTargetLength);
+            goodTarget_Y = Math.round(Math.random() * canvas.height - goodTargetLength);
+            badTarget_X = Math.round(Math.random() * canvas.width - badTargetLength);
+            badTarget_Y = Math.round(Math.random() * canvas.height - badTargetLength);
         }
         
         // Clear the canvas
@@ -184,7 +186,6 @@
             context.fillStyle = '#FFFFFF';
             context.fillRect(0, 0, 600, 400);
         }
-        
         
         function moveSquare(){
             // Move the square
@@ -220,19 +221,25 @@
 
         function checkForCollisions(){
             // Check for collisions
-            if (isWithin(target1_X, x, x + sideLength) || isWithin(target1_X + target1_Length, x, x + sideLength)) {
-                if (isWithin(target1_Y, y, y + sideLength) || isWithin(target1_Y + target1_Length, y, y + sideLength)) {
+            if (isWithin(goodTarget_X, x, x + sideLength) || isWithin(goodTarget_X + goodTargetLength, x, x + sideLength)) {
+                if (isWithin(goodTarget_Y, y, y + sideLength) || isWithin(goodTarget_Y + goodTargetLength, y, y + sideLength)) {
                     // The square and target are touching
                     score++;
                     moveTarget();
                 }
             }
-            if (isWithin(target2_X, x, x + sideLength) || isWithin(target2_X + target2_Length, x, x + sideLength)) {
-                if (isWithin(target2_Y, y, y + sideLength) || isWithin(target2_Y + target2_Length, y, y + sideLength)) {
+            if (isWithin(badTarget_X, x, x + sideLength) || isWithin(badTarget_X + badTargetLength, x, x + sideLength)) {
+                if (isWithin(badTarget_Y, y, y + sideLength) || isWithin(badTarget_Y + badTargetLength, y, y + sideLength)) {
                     // The square and target are touching
-                    score--;
-                    currentLives--;
-                    moveTarget();
+                    if(score > 0){
+                        score--;
+                        currentLives--;
+                        moveTarget();
+                    }
+                    else if(score == 0){
+                        currentLives--;
+                        moveTarget();
+                    }
                 }
             }
         }
@@ -246,9 +253,9 @@
         function drawTarget(){
             // Draw the target
             context.fillStyle = '#00FF00';
-            context.fillRect(target1_X, target1_Y, target1_Length, target1_Length);
+            context.fillRect(goodTarget_X, goodTarget_Y, goodTargetLength, goodTargetLength);
             context.fillStyle = '#B31312';
-            context.fillRect(target2_X, target2_Y, target2_Length, target2_Length);
+            context.fillRect(badTarget_X, badTarget_Y, badTargetLength, badTargetLength);
         }
 
         function drawScoreAndTime(){
