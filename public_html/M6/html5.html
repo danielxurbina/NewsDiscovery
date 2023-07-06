@@ -30,7 +30,7 @@
         // Properties for your square
         var x = 50; // X position
         var y = 100; // Y position
-        var speed = 6; // Distance to move each frame
+        var speed = 10; // Distance to move each frame
         var sideLength = 50; // Length of each side of the square
         // Countdown timer (in seconds)
         var countdown = 30;
@@ -44,6 +44,12 @@
         var badTarget_X = 0;
         var badTarget_Y = 0;
         var badTargetLength = 25;
+        var badTarget_X2 = 0;
+        var badTarget_Y2 = 0;
+        var badTargetLength2 = 25;
+        var badTarget_X3 = 0;
+        var badTarget_Y3 = 0;
+        var badTargetLength3 = 25;
         // Number to check current lives
         var currentLives = 3;
             
@@ -179,6 +185,10 @@
             goodTarget_Y = Math.round(Math.random() * canvas.height - goodTargetLength);
             badTarget_X = Math.round(Math.random() * canvas.width - badTargetLength);
             badTarget_Y = Math.round(Math.random() * canvas.height - badTargetLength);
+            badTarget_X2 = Math.round(Math.random() * canvas.width - badTargetLength2);
+            badTarget_Y2 = Math.round(Math.random() * canvas.height - badTargetLength2);
+            badTarget_X3 = Math.round(Math.random() * canvas.width - badTargetLength3);
+            badTarget_Y3 = Math.round(Math.random() * canvas.height - badTargetLength3);
         }
         
         // Clear the canvas
@@ -242,6 +252,34 @@
                     }
                 }
             }
+            if (isWithin(badTarget_X2, x, x + sideLength) || isWithin(badTarget_X2 + badTargetLength2, x, x + sideLength)) {
+                if (isWithin(badTarget_Y2, y, y + sideLength) || isWithin(badTarget_Y2 + badTargetLength2, y, y + sideLength)) {
+                    // The square and target are touching
+                    if(score > 0){
+                        score--;
+                        currentLives--;
+                        moveTarget();
+                    }
+                    else if(score == 0){
+                        currentLives--;
+                        moveTarget();
+                    }
+                }
+            }
+            if (isWithin(badTarget_X3, x, x + sideLength) || isWithin(badTarget_X3 + badTargetLength3, x, x + sideLength)) {
+                if (isWithin(badTarget_Y3, y, y + sideLength) || isWithin(badTarget_Y3 + badTargetLength3, y, y + sideLength)) {
+                    // The square and target are touching
+                    if(score > 0){
+                        score--;
+                        currentLives--;
+                        moveTarget();
+                    }
+                    else if(score == 0){
+                        currentLives--;
+                        moveTarget();
+                    }
+                }
+            }
         }
 
         function drawSquare(){
@@ -256,6 +294,10 @@
             context.fillRect(goodTarget_X, goodTarget_Y, goodTargetLength, goodTargetLength);
             context.fillStyle = '#B31312';
             context.fillRect(badTarget_X, badTarget_Y, badTargetLength, badTargetLength);
+            context.fillStyle = '#B31312';
+            context.fillRect(badTarget_X2, badTarget_Y2, badTargetLength2, badTargetLength2);
+            context.fillStyle = '#B31312';
+            context.fillRect(badTarget_X3, badTarget_Y3, badTargetLength3, badTargetLength3);
         }
 
         function drawScoreAndTime(){
