@@ -1,32 +1,75 @@
-
 <?php
 require(__DIR__ . "/../../partials/nav.php");
 reset_session();
 ?>
-<form onsubmit="return validate(this)" method="POST">
-    <div>
-        <label for="email">Email</label>
-        <input type="email" name="email" required />
-    </div>
-    <div>
-        <label for="username">Username</label>
-        <input type="text" name="username" required maxlength="30" />
-    </div>
-    <div>
-        <label for="pw">Password</label>
-        <input type="password" id="pw" name="password" required minlength="8" />
-    </div>
-    <div>
-        <label for="confirm">Confirm</label>
-        <input type="password" name="confirm" required minlength="8" />
-    </div>
-    <input type="submit" value="Register" />
-</form>
+<div class="container-fluid">
+    <form onsubmit="return validate(this)" method="POST">
+        <?php render_input(["type"=>"email", "id"=>"email", "name"=>"email", "label"=>"Email", "rules"=>["required"=>true]]);?>
+        <?php render_input(["type"=>"text", "id"=>"username", "name"=>"username", "label"=>"Username", "rules"=>["required"=>true, "maxlength"=>30]]);?>
+        <?php render_input(["type"=>"password", "id"=>"password", "name"=>"password", "label"=>"Password", "rules"=>["required"=>true, "minlength"=>8]]);?>
+        <?php render_input(["type"=>"password", "id"=>"confirm", "name"=>"confirm", "label"=>"Confirm Password", "rules"=>["required"=>true,"minlength"=>8]]);?>
+        <?php render_button(["text"=>"Register", "type"=>"submit"]);?>
+    </form>
+</div>
 <script>
     function validate(form) {
         //TODO 1: implement JavaScript validation
         //ensure it returns false for an error and true for success
+        let email = document.getElementById("email").value;
+        let username = document.getElementById("username").value;
+        let password = document.getElementById("password").value;
+        let confirm = document.getElementById("confirm").value;
 
+        // if email is empty return false
+        if (email.trim().length == 0) {
+            return false;
+        }
+
+        // if email contains @ then sanitize it and check if it's a valid email and if it's not return false and if it is return true
+        if (email.includes("@")) {
+            email = sanitize_email(email);
+            if (is_valid_email(email)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        // if email doesn't contain @ then check if it's a valid username and if it's not return false and if it is return true
+        if (!email.includes("@")) {
+            if (is_valid_username(email)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        // if username is empty return false
+        if (username.trim().length == 0) {
+            return false;
+        }
+
+        // if username is more than 30 characters return false
+        if (username.trim().length > 30) {
+            return false;
+        }
+
+        // if password is empty return false
+        if (password.trim().length == 0) {
+            return false;
+        }
+
+        // if password is less than 8 characters return false
+        if (!is_valid_password(password)) {
+            return false;
+        }
+
+        // if password and confirm password don't match return false
+        if (password != confirm) {
+            return false;
+        }
+
+        // if all the above conditions are met then return true
         return true;
     }
 </script>
@@ -80,7 +123,7 @@ if (isset($_POST["email"]) && isset($_POST["password"]) && isset($_POST["confirm
         try {
             $stmt->execute([":email" => $email, ":password" => $hash, ":username" => $username]);
             flash("Successfully registered!", "success");
-        } catch (Exception $e) {
+        } catch (PDOException $e) {
             users_check_duplicate($e->errorInfo);
         }
     }
