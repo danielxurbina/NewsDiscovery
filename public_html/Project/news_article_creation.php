@@ -2,209 +2,257 @@
 
 <div class="container-fluid">
     <h1>Create an Article</h1>
-    <form onsubmit="return validate(this)" method="POST">
+    <form method="POST" id="form" action="">
         <?php render_input(["type"=>"text", "id"=>"title", "name"=>"title", "label"=>"Title", "rules"=>["required"=>"true"]]);?>
-        <?php render_input(["type"=>"text", "id"=>"newsArticleURL", "name"=>"newsArticleURL", "label"=>"News Article Link", "rules"=>["required"=>"false"]]);?>
-        <?php render_input(["type"=>"text", "id"=>"newsVideoURL", "name"=>"newsVideoURL", "label"=>"News Article Video Link", "rules"=>["required"=>"false"]]);?>
-        <?php render_input(["type"=>"textarea", "id"=>"newsDescription", "name"=>"newsDescription", "label"=>"Description", "rules"=>["required"=>"true"]]);?>
-        <?php render_input(["type"=>"textarea", "id"=>"newsContent", "name"=>"newsContent", "label"=>"Content", "rules"=>["required"=>"true"]]);?>
-        <?php render_input(["type"=>"text", "id"=>"publishDate", "name"=>"publishDate", "label"=>"Publish Date", "rules"=>["required"=>"true"]]);?>
-        <?php render_input(["type"=>"text", "id"=>"newsImageURL", "name"=>"newsImageURL", "label"=>"News Image Link", "rules"=>["required"=>"false"]]);?>
-        <?php render_input(["type"=>"text", "id"=>"newsSource", "name"=>"newsSource", "label"=>"News Source", "rules"=>["required"=>"true"]]);?>
-        <?php render_input(["type"=>"text", "id"=>"newsCategory", "name"=>"newsCategory", "label"=>"Category", "rules"=>["required"=>"true"]]);?>
-        <?php render_input(["type"=>"text", "id"=>"newsCountry", "name"=>"newsCountry", "label"=>"Country", "rules"=>["required"=>"true"]]);?>
-        <?php render_button(["text"=>"Submit", "type"=>"submit"]);?>
+        <?php render_input(["type"=>"textarea", "id"=>"content_description", "name"=>"content_description", "label"=>"Description", "rules"=>["required"=>"true"]]);?>
+        <?php render_input(["type"=>"textarea", "id"=>"content", "name"=>"content", "label"=>"Content", "rules"=>["required"=>"true"]]);?>
+        <div class="row">
+            <div class="col">
+                <?php render_input(["type"=>"text", "id"=>"publish_date", "name"=>"publish_date", "placeholder"=>"YYYY-MM-DD is the format",  "label"=>"Publish Date", "rules"=>["required"=>"true"]]);?>
+            </div>
+            <div class="col">
+                <?php render_input(["type"=>"text", "id"=>"source_id", "name"=>"source_id", "label"=>"News Source", "rules"=>["required"=>"true"]]);?>       
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <?php render_input(["type"=>"text", "id"=>"category", "name"=>"category", "label"=>"Category", "rules"=>["required"=>"true"]]);?>
+            </div>
+            <div class="col">
+                <?php render_input(["type"=>"text", "id"=>"country", "name"=>"country", "label"=>"Country", "rules"=>["required"=>"true"]]);?>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="linkflexSwitchDefault" onclick="toggleInput('linkInput')">
+                    <label class="form-check-label" for="flexSwitchDefault">Switch to enter News Link</label>
+                </div>
+                <div id="linkInput" style="display: none;">
+                    <?php render_input(["type"=>"text", "id"=>"link", "name"=>"link", "rules"=>["required"=>"false"]]);?>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="video_urlflexSwitchDefault2" onclick="toggleInput('videoInput')">
+                    <label class="form-check-label" for="flexSwitchDefault2">Switch to enter Video URL</label>
+                </div> 
+                <div id="videoInput" style="display: none;">
+                    <?php render_input(["type"=>"text", "id"=>"video_url", "name"=>"video_url", "rules"=>["required"=>"false"]]);?>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="image_urlflexSwitchDefault3" onclick="toggleInput('imageInput')">
+                    <label class="form-check-label" for="flexSwitchDefault3">Switch to enter Image URL</label>
+                </div>
+                <div id="imageInput" style="display: none;">
+                    <?php render_input(["type"=>"text", "id"=>"image_url", "name"=>"image_url", "rules"=>["required"=>"false"]]);?>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <button type="submit" class="btn btn-primary" onclick="validateForm()">Submit</button>
+            </div>
+        </div>
     </form>
 </div>
 
 <script>
-    // JS Validation
-    function validate(form){
-        let title = document.getElementById("title").value;
-        let newsArticleURL = document.getElementById("newsArticleURL").value;
-        let newsVideoURL = document.getElementById("newsVideoURL").value;
-        let newsDescription = document.getElementById("newsDescription").value;
-        let newsContent = document.getElementById("newsContent").value;
-        let publishDate = document.getElementById("publishDate").value;
-        let newsImageURL = document.getElementById("newsImageURL").value;
-        let newsSource = document.getElementById("newsSource").value;
-        let newsCategory = document.getElementById("newsCategory").value;
-        let newsCountry = document.getElementById("newsCountry").value;
-
-        // if required fields are empty return false
-        const requiredFields = [title, newsDescription, newsContent, publishDate, newsSource, newsCategory, newsCountry];
-        const isValid = requiredFields.every(field => field.trim().length !== 0);
-        if(!isValid){
-            return false;
-        }
-        
-        // First check if the URL is empty, if it's not empty then check if it's a valid URL, if it is empty then return true since it's not a required field
-        const urls = [newsArticleURL, newsVideoURL, newsImageURL];
-        const isValidURL = urls.every(url => {
-            if(url.trim().length !== 0){
-                const regex = /^(ftp|http|https):\/\/[^ "]+$/;
-                return regex.test(url);
-            }
-            return true;
-        });
-
-        // Publish Date must follow the date format and can use regex to make sure that's the case. MM/DD/YYYY
-        const dateValidationRegex = /^([1-9]|0[1-9]|[12][0-9]|3[0-1])\/([1-9]|0[1-9]|1[0-2])\/\d{4}$/;
-        if(!dateValidationRegex.test(publishDate)){
-            return false;
-        }
-        
-        // Title, News Source, News Category, News Country can not be longer than 100 characters
-        const fieldLengthValidation = [title, newsSource, newsCategory, newsCountry];
-        const isFieldLengthValid = fieldLengthValidation.every(field => field.length <= 100);
-        if(!isFieldLengthValid){
-            return false;
-        }
-
-        // Description can not be longer than 1000 characters
-            if(newsDescription.length > 1000){
-            return false;
-        }
-        
-        // Content can not be longer than 10000 characters
-        if(newsContent.length > 10000){
-            return false;
-        }
-
-        console.log("Form is valid");
-        return true;
+function validateURL(url, hasError){
+    if(url == null || url == ""){
+        hasError = false;
+        return hasError;
     }
+
+    // Check if url is empty
+    if(url.trim().length > 0){
+        const regex = /^(ftp|http|https):\/\/[^ \"\']+$/;
+        if(!url.match(regex)){
+            hasError = true;
+            alert("Please enter a valid URL or enter null if you don't have a URL.");
+        }
+    }
+    return hasError;
+}
+
+function validateDate(date, hasError){
+    // Check if date is empty
+    if(date.trim().length == 0){
+        alert("Please enter a date.");
+        hasError = true;
+    }
+
+    dateValidationRegex = /^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$/;
+    if(!date.match(dateValidationRegex)){
+        alert("Please enter a valid date in this format YYYY-MM-DD.");
+        hasError = true;
+    }
+
+    return hasError;
+}
+
+function checkLength(fields, length){
+    let hasError = false;
+    fields.forEach(field => {
+        if(field.length > length){
+            alert("Please enter a value less than " + length + " characters.");
+            hasError = true;
+        }
+    })
+
+    return hasError;
+}
+
+function toggleInput(inputId){
+    var input = document.getElementById(inputId);
+    if(input.style.display === "none"){
+        console.log("toggle on");
+        input.style.display = "block";
+    } else {
+        console.log("toggle off");
+        input.style.display = "none";
+    }
+}
+
+function validateForm(){
+    event.preventDefault();
+    var title = document.getElementById("title").value;
+    var link = document.getElementById("link").value;
+    var video_url = document.getElementById("video_url").value;
+    var content_description = document.getElementById("content_description").value;
+    var content = document.getElementById("content").value;
+    var publish_date = document.getElementById("publish_date").value;
+    var image_url = document.getElementById("image_url").value;
+    var source_id = document.getElementById("source_id").value;
+    var category = document.getElementById("category").value;
+    var country = document.getElementById("country").value;
+    var hasError = false;
+    let requiredFields = [title, content_description, content, publish_date, source_id, category, country];
+    let isValid = requiredFields.every(field => field.trim().length !== 0);
+    let checkLengthFields = [title, link, video_url, image_url, source_id, country, category];
+
+    if(!isValid){
+        hasError = true;
+        alert("Please fill out all required fields.");
+    }
+
+    // Check if the "link" checkbox is checked
+    var linkCheckBox = document.getElementById("linkflexSwitchDefault");
+    if(linkCheckBox.checked){
+        if(!validateURL(link, hasError)){
+            hasError = false;
+        }
+    }
+
+    // Check if the "video_url" checkbox is checked
+    var videoCheckBox = document.getElementById("video_urlflexSwitchDefault2");
+    if(videoCheckBox.checked){
+        if(!validateURL(video_url, hasError)){
+            hasError = false;
+        }
+    }
+
+    // Check if the "image_url" checkbox is checked
+    var imageCheckBox = document.getElementById("image_urlflexSwitchDefault3");
+    if(imageCheckBox.checked){
+        if(!validateURL(image_url, hasError)){
+            hasError = false;
+        }
+    }
+    
+    if(!validateDate(publish_date, hasError)){
+        hasError = false;
+    }
+
+    if(!checkLength(checkLengthFields, 500)){
+        hasError = false;
+    }
+
+    if(hasError){
+        return false;
+    }
+
+    // Explicitly submit the form if there are no errors
+    document.getElementById("form").submit();
+}
 </script>
+<style>
+
+</style>
 
 <?php
-    function validateRequiredFields($fields){
-        foreach($fields as $field){
-            if(empty($field)){
-                return false;
-            }
-        }
-        return true;
-    }
+if($_SERVER['REQUEST_METHOD'] == "POST"){
+    $title = $_POST["title"];
+    $link = $_POST["link"];
+    $video_url = $_POST["video_url"];
+    $content_description = $_POST["content_description"];
+    $content = $_POST["content"];
+    $publish_date = $_POST["publish_date"];
+    $image_url = $_POST["image_url"];
+    $source_id = $_POST["source_id"];
+    $category = $_POST["category"];
+    $country = $_POST["country"];
+    $manual_check = 1;
+    $content_hash = isset($content) ? hash("sha256", $content) : null;
+    $ignore = ["id", "api_id"];
+    $hasError = false;
 
-    function validateURL($url){
-        if(!empty($url)){
-            $regex = "/^(ftp|http|https):\/\/[^ \"\']+$/";
-            return preg_match($regex, $url);
-        }
-        return true; // url is optional, so it's considered valid if empty
-    }
+    $required_fields = [$title, $content_description, $content, $publish_date, $category, $country];
 
-    function validateDate($date){
-        if(empty($date)){
-            return false;
-        }
-        // date must follow the date format and can use regex to make sure that's the case. MM/DD/YYYY
-        $dateValidationRegex = "/^([1-9]|0[1-9]|[12][0-9]|3[0-1])\/([1-9]|0[1-9]|1[0-2])\/\d{4}$/";
-        return preg_match($dateValidationRegex, $date);
-    }
+    $validateRequiredFields = validateRequiredFields($required_fields, $hasError);
+    $validateLink = validateURL($link, $hasError);
+    $validateVideoURL = validateURL($video_url, $hasError);
+    $validateImageURL = validateURL($image_url, $hasError);
+    $validateDate = validateDate($publish_date, $hasError);
 
-    function validateStringLength($field, $maxLength){
-        return strlen($field) <= $maxLength;
-    }
-
-    function news_article_check_duplicate($errorInfo){
-        if($errorInfo[1] === 1062){
-            preg_match("/NewsArticles.(\w+)/", $errorInfo[2], $matches);
-            if(isset($matches[1])){
-                flash("Duplicate article found based on content", "warning");
-            } else {
-                flash("An unhandled error occurred", "danger");
-                error_log(var_export($errorInfo, true));
-            }
-        } else {
-            flash("An unhandled error occurred", "danger");
-            error_log(var_export($errorInfo, true));
-        }
-    }
-
-    // PHP Validation
-    if(
-        isset($_POST["title"]) &&
-        isset($_POST["newsDescription"]) && 
-        isset($_POST["newsContent"]) &&
-        isset($_POST["publishDate"]) &&
-        isset($_POST["newsSource"]) &&
-        isset($_POST["newsCategory"]) &&
-        isset($_POST["newsCountry"])
-    ){
-        $title = se($_POST, "title", "", false); // required
-        $newsDescription = se($_POST, "newsDescription", "", false); // required
-        $newsContent = se($_POST, "newsContent", "", false); // required
-        $publishDate = se($_POST, "publishDate", "", false); // required
-        $newsSource = se($_POST, "newsSource", "", false); // required
-        $newsCategory = se($_POST, "newsCategory", "", false); // required
-        $newsCountry = se($_POST, "newsCountry", "", false); // required
-        $newsArticleURL = se($_POST, "newsArticleURL", "default", false); // not required
-        $newsVideoURL = se($_POST, "newsVideoURL", "default", false); // not required
-        $newsImageURL = se($_POST, "newsImageURL", "default", false); // not required
-        $manual_check = true;
-        $user_id = get_user_id();
+    if($validateLink){
         $hasError = false;
-        $requiredFields = array($title, $newsDescription, $newsContent, $publishDate, $newsSource, $newsCategory, $newsCountry);
-
-        if(!validateRequiredFields($requiredFields)){
-            flash("Please fill out all required fields");
-            $hasError = true;
-        }
-        if (!validateStringLength($title, 100) || !validateStringLength($newsSource, 100) || !validateStringLength($newsCategory, 100) || !validateStringLength($newsCountry, 100)) {
-            flash("Please enter a valid input length");
-            $hasError = true;
-        }
-        if (strlen($newsDescription) > 1000){
-            flash("Please enter a valid input length");
-            $hasError = true;
-        } 
-        if (strlen($newsContent) > 10000){
-            flash("Please enter a valid input length");
-            $hasError = true;
-        } 
-        if (!validateURL($newsArticleURL) || !validateURL($newsVideoURL) || !validateURL($newsImageURL)){
-            flash("Please enter a valid URL");
-            $hasError = true;
-        } 
-        if (!validateDate($publishDate)){
-            flash("Please enter a valid date");
-            $hasError = true;
-        }
-
-        if(!$hasError){
-            $content_hash = hash("sha256", $newsContent);
-            $db = getDB();
-            $stmt = $db->prepare("INSERT INTO NewsArticles(title, link, video_url, description, content, publish_date, image_url, source_id, category, country, created_by, manual_check, content_hash) VALUES (:title, :link, :video_url, :description, :content, :publish_date, :image_url, :source_id, :category, :country, :created_by, :manual_check, :content_hash)");
-
-            $data = [
-                ":title" => $title,
-                ":link" => $newsArticleURL,
-                ":video_url" => $newsVideoURL,
-                ":description" => $newsDescription,
-                ":content" => $newsContent,
-                ":publish_date" => $publishDate,
-                ":image_url" => $newsImageURL,
-                ":source_id" => $newsSource,
-                ":category" => $newsCategory,
-                ":country" => $newsCountry,
-                ":created_by" => $user_id,
-                ":manual_check" => $manual_check,
-                ":content_hash" => $content_hash
-            ];
-
-            try{
-                $stmt->execute($data);
-                flash("Successfully added news article", "success");
-
-            } catch(PDOException $e){
-                // check duplicate entry through content_hash
-                news_article_check_duplicate($e->errorInfo);
-            }
-        }
+        $link = null;
+    }
+    if($validateVideoURL){
+        $hasError = false;
+        $video_url = null;
+    }
+    if($validateImageURL){
+        $hasError = false;
+        $image_url = null;
     }
 
-    
-?>
+    if($validateRequiredFields || $validateDate){
+        $hasError = true;
+    }
 
-<?php require(__DIR__ . "/../../partials/flash.php"); ?>
+    error_log("Date after if statement: $publish_date");
+
+    if(!$hasError){
+        error_log("Date before format: $publish_date");
+        // $publish_date = DateTime::createFromFormat("m/d/Y", $publish_date)->format("Y-m-d");
+        error_log("Date after format: $publish_date");
+        $data = [
+            "title" => $title,
+            "link" => $link,
+            "video_url" => $video_url,
+            "content_description" => $content_description,
+            "content" => $content,
+            "publish_date" => $publish_date,
+            "image_url" => $image_url,
+            "source_id" => $source_id,
+            "category" => $category,
+            "country" => $country,
+            "created_by" => get_user_id(),
+            "manual_check" => $manual_check,
+            "content_hash" => $content_hash
+        ];
+        
+        $db = getDB();
+        save_data("NewsArticles", $data, $ignore);
+
+        flash("Article submitted succesfully!", "success");
+    }
+}
+?>
+<?php 
+require(__DIR__ . "/../../partials/flash.php"); 
+?>

@@ -30,4 +30,8 @@ require_once(__DIR__ . "/api_helper.php");
 require_once(__DIR__ . "/data_mapping.php");
 
 require_once(__DIR__ . "/import_news_article_data.php");
+
+require_once(__DIR__ . "/article_helpers.php");
+
+require_once(__DIR__ . "/redirect.php");
 ?>
