@@ -127,6 +127,8 @@ if($action){
 
 <div class="container-fluid">
     <h1>News Article Data Management</h1>
+    <p>Use this page to import data from the News API into the database.</p>
+    <p>Click the button below to refresh the news articles data.</p>
     <div class="row">
         <div class="col">
             <!-- News Article refresh button -->
