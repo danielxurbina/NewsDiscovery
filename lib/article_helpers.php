@@ -100,3 +100,15 @@ function save_data($table, $data, $ignore)
         flash("An error ocurred saving data for table: " . $e->getMessage(), "danger");
     }
 }
+
+function delete_data($table, $id){
+    $db = getDB();
+    $stmt = $db->prepare("DELETE FROM $table WHERE id=:id");
+
+    try{
+        $stmt->execute([":id" => $id]);
+    } catch(PDOException $e){
+        error_log(var_export($e->errorInfo, true));
+        flash("An error ocurred deleting data for table: " . $e->getMessage(), "danger");
+    }
+}

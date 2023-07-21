@@ -224,12 +224,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
         $hasError = true;
     }
 
-    error_log("Date after if statement: $publish_date");
-
     if(!$hasError){
-        error_log("Date before format: $publish_date");
-        // $publish_date = DateTime::createFromFormat("m/d/Y", $publish_date)->format("Y-m-d");
-        error_log("Date after format: $publish_date");
         $data = [
             "title" => $title,
             "link" => $link,

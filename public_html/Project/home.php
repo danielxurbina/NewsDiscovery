@@ -63,7 +63,7 @@ require(__DIR__ . "/../../partials/nav.php");
                             <a href="delete_article.php?id=<?php echo $article['id']; ?>" class="btn btn-danger">Delete</a>
                         <?php endif; ?>
                         <?php if (has_role("Admin") || $article['user_id'] == get_user_id()) : ?>
-                            <a href="delete_article.php?id=<?php echo $article['id']; ?>" class="btn btn-danger">Delete</a>
+                            <a href="article_delete.php?id=<?php echo $article['id']; ?>" class="btn btn-danger">Delete</a>
                         <?php endif; ?>
 
                     </div>
