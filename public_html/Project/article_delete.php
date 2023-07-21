@@ -6,25 +6,48 @@ require(__DIR__ . "/../../partials/nav.php");
     <?php 
         // Extract id from url
         $id = $_GET['id'];
-
-        error_log("ID: $id");
+        $canDelete = false;
 
         // Fetch from the DB with the ID gotten from the URL
         $db = getDB();
         $stmt = $db->prepare("SELECT * FROM NewsArticles WHERE id = :id");
-        error_log("stmt after prepare: " . var_export($stmt, true));
         $r = $stmt->execute([":id" => $id]);
-        error_log("r after execute: " . var_export($r, true));
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        error_log("Result: " . var_export($result, true));
 
         // Check if the article exists
         if (!$result) {
-            redirect("home.php");
             flash("Article does not exist", "warning");
+            redirect("home.php");
+        }
+
+        // If the ID is invalid, redirect to home page and display a message that the ID was invalid
+        if(has_role("Admin")){
+            $canDelete = true;
+        }
+        else if($result["created_by"] == get_user_id()){
+            $canDelete = true;
+        }
+        else{
+            flash("You don't have permission to delete this article", "warning");
+            redirect("home.php");
+        }
+
+        if($_SERVER['REQUEST_METHOD'] == 'POST'){
+            if(isset($_POST['delete'])){
+                $id = $_POST['id'];
+                delete_data("NewsArticles", $id);
+                flash("Article deleted successfully", "success");
+                redirect("home.php");
+            }
         }
     ?>
+    <h1> Delete Article Confirmation</h1>
+    <h3> Are you sure you want to delete the article?</h3>
+    <h3> This action cannot be undone.</h3>
+    <form method="POST">
+        <input type="hidden" name="id" value="<?php echo $id;?>"/>
+        <input type="submit" class="btn btn-primary" name="delete" value="Delete"/>
+    </form>
     <img src="<?php echo $result['image_url'];?>" alt="Article Image">
     <h1><?php echo $result['title'];?></h1>
     <h3><?php echo $result['publish_date'];?></h3>
