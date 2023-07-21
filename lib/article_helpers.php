@@ -91,6 +91,7 @@ function save_data($table, $data, $ignore)
     foreach ($columns as $col){
         $params[":$col"] = $data[$col];
     }
+
     $stmt = $db->prepare($query);
     error_log("stmt: " . var_export($stmt, true));
     try{
@@ -99,4 +100,20 @@ function save_data($table, $data, $ignore)
         error_log(var_export($e->errorInfo, true));
         flash("An error ocurred saving data for table: " . $e->getMessage(), "danger");
     }
+}
+
+function check_duplicate($content_hash, $title){
+    $db = getDB();
+    $query = "SELECT id, api_id, title, link, video_url, content_description, content, publish_date, image_url, source_id, category, country, manual_check, content_hash FROM NewsArticles WHERE content_hash = :content_hash AND title = :title";
+    $stmt = $db->prepare($query);
+    $stmt->bindValue(":content_hash", $content_hash);
+    $stmt->bindValue(":title", $title);
+    try{
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result;
+    } catch(PDOException $e){
+        error_log("Error fetching articles from DB: " . var_export($e, true));
+    }
+    return [];
 }
