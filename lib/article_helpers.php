@@ -102,6 +102,7 @@ function save_data($table, $data, $ignore)
     }
 }
 
+
 function check_duplicate($content_hash, $title){
     $db = getDB();
     $query = "SELECT id, api_id, title, link, video_url, content_description, content, publish_date, image_url, source_id, category, country, manual_check, content_hash FROM NewsArticles WHERE content_hash = :content_hash AND title = :title";
@@ -116,4 +117,16 @@ function check_duplicate($content_hash, $title){
         error_log("Error fetching articles from DB: " . var_export($e, true));
     }
     return [];
+}
+
+function delete_data($table, $id){
+    $db = getDB();
+    $stmt = $db->prepare("DELETE FROM $table WHERE id=:id");
+
+    try{
+        $stmt->execute([":id" => $id]);
+    } catch(PDOException $e){
+        error_log(var_export($e->errorInfo, true));
+        flash("An error ocurred deleting data for table: " . $e->getMessage(), "danger");
+    }
 }

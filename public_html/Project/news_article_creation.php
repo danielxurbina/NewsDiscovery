@@ -225,8 +225,6 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
         $hasError = true;
     }
 
-    error_log("Date after if statement: $publish_date");
-
     if(!$hasError){
         $data = [
             "title" => $title,
