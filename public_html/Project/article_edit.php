@@ -32,13 +32,6 @@ require(__DIR__ . "/../../partials/nav.php");
     <h3><?php echo $result['category'];?></h3>
     <h3><?php echo $result['country'];?></h3>
     <a class="btn btn-primary" href="<?php echo $result['link'];?>">Link to article</a>
-    <?php if($result['created_by'] == get_user_id()) : ?>
-        <a class="btn btn-warning" href="article_edit.php?id=<?php echo $result['id'];?>">Edit</a>
-        <a class="btn btn-danger" href="article_delete.php?id=<?php echo $result['id'];?>">Delete</a>
-    <?php endif; ?>
-    <?php if (has_role("Admin") || $result['created_by'] == get_user_id()) : ?>
-        <a class="btn btn-danger" href="article_delete.php?id=<?php echo $result['id'];?>">Delete</a>
-    <?php endif; ?>
     <p><?php echo $result['content_description'];?></p>
     <p><?php echo $result['content'];?></p>
 </div>

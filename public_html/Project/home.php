@@ -60,6 +60,7 @@ require(__DIR__ . "/../../partials/nav.php");
                         <a href="article_details.php?id=<?php echo $article['id']; ?>" class="btn btn-primary">Read More</a>
                         <?php if ($article['created_by'] == get_user_id()) : ?>
                             <a href="edit_article.php?id=<?php echo $article['id']; ?>" class="btn btn-warning">Edit</a>
+                            <a href="delete_article.php?id=<?php echo $article['id']; ?>" class="btn btn-danger">Delete</a>
                         <?php endif; ?>
                         <?php if (has_role("Admin") || $article['user_id'] == get_user_id()) : ?>
                             <a href="delete_article.php?id=<?php echo $article['id']; ?>" class="btn btn-danger">Delete</a>
