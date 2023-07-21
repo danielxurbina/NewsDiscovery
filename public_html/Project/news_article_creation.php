@@ -195,6 +195,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
     $category = $_POST["category"];
     $country = $_POST["country"];
     $manual_check = 1;
+    $created_by = get_user_id();
     $content_hash = isset($content) ? hash("sha256", $content) : null;
     $ignore = ["id", "api_id"];
     $hasError = false;
@@ -236,15 +237,22 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             "source_id" => $source_id,
             "category" => $category,
             "country" => $country,
-            "created_by" => get_user_id(),
+            "created_by" => $created_by,
             "manual_check" => $manual_check,
             "content_hash" => $content_hash
         ];
-        
-        $db = getDB();
-        save_data("NewsArticles", $data, $ignore);
 
-        flash("Article submitted succesfully!", "success");
+        // Check if the article already exists in the database
+        $duplicateValue = check_duplicate($content_hash, $title);
+        
+        if($duplicateValue){
+            error_log("Duplicate value found: ID: " . $duplicateValue["id"] . ", Title: " . $duplicateValue["title"]);
+            flash("This article already exists in the database.", "danger");
+        } else {
+            $db = getDB();
+            save_data("NewsArticles", $data, $ignore);
+            flash("Article submitted succesfully!", "success");
+        }
     }
 }
 ?>
