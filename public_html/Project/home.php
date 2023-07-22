@@ -1,38 +1,76 @@
 <?php
 require(__DIR__ . "/../../partials/nav.php");
 ?>
+
 <div class="container-fluid">
-    <h1> News </h1>
-    <p> Welcome to the News page! </p>
-    <p> Here you can view all the news articles that have been created. </p>
-    <p> Type something in the input field to search the list of articles for specific items: </p>
     <div class="row">
-        <input class="form-control" id="myInput" type="text" placeholder="Search..">
+        <h1> News </h1>
+        <p> Welcome to the News page! </p>
+        <p> Here you can view all the news articles that have been created. </p>
+        <p> Type something in the input field to search the list of articles for specific items: </p>
     </div>
     <div class="row">
-        <label for="sortOption">Sort by:</label>
-        <select id="sortOption" class="form-control">
-            <option value="country">Country</option>
-            <option value="category">Category</option>
-        </select>
-    </div>
-    <div class="row">
-        <!-- Add a field for the user to enter the limit of articles to appear on the page -->
-        <label for="limit">Number of articles to display:</label>
-        <input class="form-control" id="limit" type="number" min="1" max="100" value="10">
+        <div class="col">
+            <form method="POST" id="filterForm" action="">
+                <div class="col">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="linkflexSwitchDefault" onclick="toggleInput('articleInput')">
+                        <label class="form-check-label" for="flexSwitchDefault">Switch to enter the number of articles to display</label>
+                    </div> 
+                    <div id="articleInput" style="display: none;">
+                        <?php render_input(["type"=>"text", "id"=>"articleLimit", "placeholder"=>"Enter a number of articles to display (1-100)", "name"=>"articleLimit", "rules"=>["required"=>"false"]]);?>
+                        <button type="submit" class="btn btn-primary" onclick="validateFilter()">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="row">
+            <form method="POST" id="searchForm" action="">
+                <div class="col">
+                    <input class="form-control" id="searchInput" name="searchInput" type="text" placeholder="Search..">
+                </div>
+                <div class="col">
+                    <button type="button" id="searchButton" class="btn btn-primary" onclick="searchFunction()">Search</button>
+                </div>
+            </form>
+        </div>
     </div>
     <div class="row" id="articles">
         <?php
-        // Fetch articles from the database using get_articles() function
-        $articles = get_articles();
+        // Set the default number of articles to display
+        $article_limit = 10;
+        $articles = [];
+        $categories = [];
+        $countries = [];
 
-        // Check if the user has selected a sorting option
-        $sortOption = isset($GET['sortOption']) ? $GET['sortOption'] : 'title';
+        // Check if the user has entered a number of articles to display
+        if (isset($_POST['articleLimit'])) {
+            $article_limit = $_POST['articleLimit'];
+            $articles = get_articles($article_limit);
+            error_log("Article Limit: " . var_export($articles, true));
+        }
+        else if(isset($_POST['searchInput'])){
+            $searchInput = $_POST['searchInput'];
+            $articles = searchFilter('NewsArticles', $searchInput);
+            // If the articles array is empty display a message that no articles were found
+            if(empty($articles)){
+                echo "No articles were found.";
+            }
+            error_log("Search Input: " . var_export($articles, true));
+        }
+        else{
+            $articles = get_articles($article_limit);
+            error_log("Articles: " . var_export($articles, true));
+        }
 
-        // Sort the articles based on te selected option
-        usort($articles, function ($a, $b) use ($sortOption){
-            return $a[$sortOption] <=> $b[$sortOption];
-        });
+        // Fetch all categories from the database
+        $categories = get_categories();
+
+        // Fetch all countries from the database
+        $countries = get_countries();
+
+        error_log("Categories: " . var_export($categories, true));
+        error_log("Countries: " . var_export($countries, true));
 
         // Loop through the articles and display each one
         foreach ($articles as $article) {
@@ -59,13 +97,13 @@ require(__DIR__ . "/../../partials/nav.php");
                         <p class="card-text"><?php echo $article['content_description']; ?></p>
                         <a href="article_details.php?id=<?php echo $article['id']; ?>" class="btn btn-primary">Read More</a>
                         <?php if ($article['created_by'] == get_user_id()) : ?>
-                            <a href="edit_article.php?id=<?php echo $article['id']; ?>" class="btn btn-warning">Edit</a>
-                            <a href="delete_article.php?id=<?php echo $article['id']; ?>" class="btn btn-danger">Delete</a>
-                        <?php endif; ?>
-                        <?php if (has_role("Admin") || $article['user_id'] == get_user_id()) : ?>
+                            <a href="article_edit.php?id=<?php echo $article['id']; ?>" class="btn btn-warning">Edit</a>
                             <a href="article_delete.php?id=<?php echo $article['id']; ?>" class="btn btn-danger">Delete</a>
                         <?php endif; ?>
-
+                        <?php if(has_role("Admin") && $article['created_by'] != get_user_id()) : ?>
+                            <a href="article_edit.php?id=<?php echo $article['id']; ?>" class="btn btn-warning">Edit</a>
+                            <a href="article_delete.php?id=<?php echo $article['id']; ?>" class="btn btn-danger">Delete</a>
+                        <?php endif ?>
                     </div>
                 </div>
             </div>
@@ -124,6 +162,7 @@ require(__DIR__ . "/../../partials/nav.php");
         }
     }
 </style>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     // Filter the articles based on the input value
@@ -136,24 +175,52 @@ require(__DIR__ . "/../../partials/nav.php");
         });
     });
 
-    // Filter the articles based on the selected limit
-    $(document).ready(function() {
-        $("#limit").on("input", function() {
-            var limit = $(this).val();
-            $("#articles .col-md-4").each(function(index) {
-                $(this).toggle(index < limit);
-            });
-        });
-    });
+    function toggleInput(inputId){
+        var input = document.getElementById(inputId);
+        if(input.style.display === "none"){
+            console.log("toggle on");
+            input.style.display = "block";
+        } else {
+            console.log("toggle off");
+            input.style.display = "none";
+        }
+    }
+
+    function validateFilter() {
+        event.preventDefault()
+        var x = document.forms["filterForm"]["articleLimit"].value;
+        if(x > 100 || x < 1){
+            alert("Please enter a number between 1 and 100");
+            return false;
+        }
+        console.log("Form validated")
+        
+        // submit the form
+        document.getElementById("filterForm").submit();
+    }
+
+    function searchFunction(){
+        var input = document.getElementById("searchInput").value;
+        
+        if(input == ""){
+            alert("Please enter a search term");
+            return false;
+        }
+
+        console.log("Search term: " + input);
+        
+        // submit the form
+        document.getElementById("searchForm").submit();
+    }
 </script>
 
 <?php
-
 if (is_logged_in(true)) {
     //comment this out if you don't want to see the session variables
     error_log("Session data: " . var_export($_SESSION, true));
 }
 ?>
+
 <?php
 require(__DIR__ . "/../../partials/flash.php");
 ?>

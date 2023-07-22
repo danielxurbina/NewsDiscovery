@@ -1,22 +1,72 @@
 <?php
-function get_articles()
+function get_articles($article_limit)
 {
+    // If article limit is not empty then fetch the number of articles specified by the user
+    if(!empty($article_limit)){
+        $db = getDB();
+        $query = "SELECT id, api_id, title, link, video_url, content_description, content, publish_date, image_url, source_id, category, country, manual_check, created_by, content_hash FROM NewsArticles LIMIT $article_limit";
+        $stmt = $db->prepare($query);
+        try{
+            $stmt->execute();
+            $result = $stmt->fetchAll();
+            return $result;
+        } catch(PDOException $e){
+            error_log("Error fetching articles from DB: " . var_export($e, true));
+        }
+    } else {
+        // If article limit is empty then fetch all articles
+        $db = getDB();
+        $query = "SELECT id, api_id, title, link, video_url, content_description, content, publish_date, image_url, source_id, category, country, manual_check, created_by, content_hash FROM NewsArticles";
+        $stmt = $db->prepare($query);
+        try{
+            $stmt->execute();
+            $result = $stmt->fetchAll();
+            return $result;
+        } catch(PDOException $e){
+            error_log("Error fetching articles from DB: " . var_export($e, true));
+        }
+    }
+}
+
+function get_categories(){
     $db = getDB();
-    $query = "SELECT id, api_id, title, link, video_url, content_description, content, publish_date, image_url, source_id, category, country, manual_check, content_hash FROM NewsArticles";
+    $query = "SELECT DISTINCT category FROM NewsArticles";
     $stmt = $db->prepare($query);
     try{
         $stmt->execute();
         $result = $stmt->fetchAll();
-        // Convert the date format back to MM/DD/YYYY when fetching from the database
-        foreach ($result as &$row) {
-            $publish_date_db = DateTime::createFromFormat("Y-m-d", $row["publish_date"]);
-            $row["publish_date"] = $publish_date_db->format("m/d/Y");
-        }
+        return $result;
+    } catch(PDOException $e){
+        error_log("Error fetching categories from DB: " . var_export($e, true));
+    }
+}
+
+function get_countries(){
+    $db = getDB();
+    $query = "SELECT DISTINCT country FROM NewsArticles";
+    $stmt = $db->prepare($query);
+    try{
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        return $result;
+    } catch(PDOException $e){
+        error_log("Error fetching countries from DB: " . var_export($e, true));
+    }
+}
+
+function searchFilter($table, $search){
+    $db = getDB();
+    // get News Articles that match the search request and match it with the title of the article
+    $query = "SELECT id, api_id, title, link, video_url, content_description, content, publish_date, image_url, source_id, category, country, manual_check, created_by, content_hash FROM $table WHERE title LIKE '%$search%'";
+
+    $stmt = $db->prepare($query);
+    try{
+        $stmt->execute();
+        $result = $stmt->fetchAll();
         return $result;
     } catch(PDOException $e){
         error_log("Error fetching articles from DB: " . var_export($e, true));
     }
-    return [];
 }
 
 function validateURL($url, $hasError)
