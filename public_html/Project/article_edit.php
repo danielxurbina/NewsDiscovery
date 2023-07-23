@@ -1,5 +1,12 @@
 <?php
 require(__DIR__ . "/../../partials/nav.php");
+
+// If user is not logged in redirect to login page
+if(!is_logged_in()){
+    flash("You must be logged in to view this page", "warning");
+    die(header("Location: login.php"));
+}
+
 ?>
 
 <div class="container-fluid">
