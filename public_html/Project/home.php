@@ -54,7 +54,7 @@ require(__DIR__ . "/../../partials/nav.php");
             $articles = searchFilter('NewsArticles', $searchInput);
             // If the articles array is empty display a message that no articles were found
             if(empty($articles)){
-                echo "No articles were found.";
+                flash("No articles found", "info");
             }
             error_log("Search Input: " . var_export($articles, true));
         }
@@ -165,16 +165,6 @@ require(__DIR__ . "/../../partials/nav.php");
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    // Filter the articles based on the input value
-    $(document).ready(function() {
-        $("#myInput").on("keyup", function() {
-            var value = $(this).val().toLowerCase();
-            $("#articles .card").filter(function() {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-            });
-        });
-    });
-
     function toggleInput(inputId){
         var input = document.getElementById(inputId);
         if(input.style.display === "none"){
@@ -187,10 +177,11 @@ require(__DIR__ . "/../../partials/nav.php");
     }
 
     function validateFilter() {
+        clearFlashMessages();
         event.preventDefault()
         var x = document.forms["filterForm"]["articleLimit"].value;
         if(x > 100 || x < 1){
-            alert("Please enter a number between 1 and 100");
+            flash("Please enter a number between 1 and 100", "warning");
             return false;
         }
         console.log("Form validated")
@@ -200,6 +191,8 @@ require(__DIR__ . "/../../partials/nav.php");
     }
 
     function searchFunction(){
+        clearFlashMessages();
+        event.preventDefault()
         var input = document.getElementById("searchInput").value;
         
         if(input == ""){

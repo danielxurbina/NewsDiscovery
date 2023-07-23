@@ -100,7 +100,6 @@ function validateRequiredFields($fields, $hasError)
 {
     foreach($fields as $field){
         if(empty($field)){
-            flash("Please fill out all required fields", "warning");
             $hasError = true;
             return $hasError;
         }
@@ -114,7 +113,6 @@ function validateDate($date, $hasError)
 {
     // Check if the date is empty
     if(empty($date)){
-        flash("Please fill out all required fields", "warning");
         $hasError = true;
         return $hasError;
     }
@@ -124,7 +122,6 @@ function validateDate($date, $hasError)
     // Check if the date is in the correct format
     $dateValidationRegex = "/^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$/";
     if(!preg_match($dateValidationRegex, $date)){
-        flash("Please enter a valid date YYYY-MM-DD", "warning");
         $hasError = true;
         return $hasError;
     }

@@ -14,3 +14,10 @@ function flash(message = "", color = "info") {
     //add the element to the DOM (if we don't it merely exists in memory)
     flash.appendChild(outerDiv);
 }
+
+function clearFlashMessages(){
+    const flash = document.getElementById("flash");
+    while(flash.firstChild){
+        flash.removeChild(flash.firstChild);
+    }
+}
