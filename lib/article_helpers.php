@@ -4,7 +4,7 @@ function get_articles($article_limit)
     // If article limit is not empty then fetch the number of articles specified by the user
     if(!empty($article_limit)){
         $db = getDB();
-        $query = "SELECT id, api_id, title, link, video_url, content_description, content, publish_date, image_url, source_id, category, country, manual_check, created_by, content_hash FROM NewsArticles LIMIT $article_limit";
+        $query = "SELECT id, api_id, title, link, video_url, content_description, content, publish_date, image_url, source_id, category, country, manual_check, created_by, content_hash FROM NewsArticles ORDER BY publish_date DESC LIMIT $article_limit";
         $stmt = $db->prepare($query);
         try{
             $stmt->execute();
@@ -16,7 +16,7 @@ function get_articles($article_limit)
     } else {
         // If article limit is empty then fetch all articles
         $db = getDB();
-        $query = "SELECT id, api_id, title, link, video_url, content_description, content, publish_date, image_url, source_id, category, country, manual_check, created_by, content_hash FROM NewsArticles";
+        $query = "SELECT id, api_id, title, link, video_url, content_description, content, publish_date, image_url, source_id, category, country, manual_check, created_by, content_hash FROM NewsArticles ORDER BY publish_date DESC";
         $stmt = $db->prepare($query);
         try{
             $stmt->execute();
@@ -26,6 +26,16 @@ function get_articles($article_limit)
             error_log("Error fetching articles from DB: " . var_export($e, true));
         }
     }
+}
+
+function get_articles_by_id($id){
+    $db = getDB();
+    $stmt = $db->prepare("SELECT * FROM NewsArticles WHERE id = :id");
+    $stmt->execute([":id"=>$id]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    error_log("result: " . var_export($result, true));
+    return $result;
 }
 
 function get_categories(){
@@ -57,8 +67,7 @@ function get_countries(){
 function searchFilter($table, $search){
     $db = getDB();
     // get News Articles that match the search request and match it with the title of the article
-    $query = "SELECT id, api_id, title, link, video_url, content_description, content, publish_date, image_url, source_id, category, country, manual_check, created_by, content_hash FROM $table WHERE title LIKE '%$search%'";
-
+    $query = "SELECT id, api_id, title, link, video_url, content_description, content, publish_date, image_url, source_id, category, country, manual_check, created_by, content_hash FROM $table WHERE title LIKE '%$search%' ORDER BY publish_date DESC";
     $stmt = $db->prepare($query);
     try{
         $stmt->execute();
@@ -126,6 +135,24 @@ function validateDate($date, $hasError)
     return $hasError;
 }
 
+function getUserID($table, $id){
+    $db = getDB();
+    $stmt = $db->prepare("SELECT created_by FROM $table WHERE id = :id");
+    $r = $stmt->execute([":id"=>$id]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    error_log("result: " . var_export($result, true));
+
+    // Check if the article exits
+    if(!$result){
+        error_log("Article does not exist");
+    }
+
+    $userID = $result["created_by"];
+
+    return $userID;
+}
+
 function save_data($table, $data, $ignore)
 {
     $table = se($table, null, null, false);    
@@ -152,6 +179,30 @@ function save_data($table, $data, $ignore)
     }
 }
 
+function updateArticles($table, $changes, $ignore, $id){
+    $table = se($table, null, null, false);
+    $db = getDB();
+    error_log("Changes: " . var_export($changes, true));
+    $query = "UPDATE $table SET ";
+    $columns = array_filter(array_keys($changes), function($x) use ($ignore) {
+        return !in_array($x, $ignore);
+    });
+    $query .= join(",", array_map(fn ($x) => "$x = :$x", $columns));
+    $query .= " WHERE id = :id";
+    $params = [];
+    foreach ($columns as $col){
+        $params[":$col"] = $changes[$col];
+    }
+    $params[":id"] = $id;
+    $stmt = $db->prepare($query);
+    error_log("stmt: " . var_export($stmt, true));
+    try{
+        $stmt->execute($params);
+    } catch(PDOException $e){
+        error_log(var_export($e->errorInfo, true));
+        flash("An error ocurred saving data for table: " . $e->getMessage(), "danger");
+    }
+}
 
 function check_duplicate($content_hash, $title){
     $db = getDB();

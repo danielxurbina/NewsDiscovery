@@ -200,7 +200,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
     $ignore = ["id", "api_id"];
     $hasError = false;
 
-    $required_fields = [$title, $content_description, $content, $publish_date, $category, $country];
+    $required_fields = [$title, $content_description, $content, $publish_date, $source_id, $category, $country];
 
     $validateRequiredFields = validateRequiredFields($required_fields, $hasError);
     $validateLink = validateURL($link, $hasError);
