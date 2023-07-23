@@ -70,7 +70,7 @@ require(__DIR__ . "/../../partials/nav.php");
             const regex = /^(ftp|http|https):\/\/[^ \"\']+$/;
             if(!url.match(regex)){
                 hasError = true;
-                alert("Please enter a valid URL or enter null if you don't have a URL.");
+                flash("Please enter a valid URL or enter null if you don't have a URL.", "warning");
             }
         }
 
@@ -80,23 +80,27 @@ require(__DIR__ . "/../../partials/nav.php");
     function validateDate(date, hasError){
         // Check if date is empty
         if(date.trim().length == 0){
-            alert("Please enter a date.");
+            flash("Please enter a date", "warning");
             hasError = true;
+            return hasError;
         }
 
         dateValidationRegex = /^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$/;
-        if(!date.match(dateValidationRegex)){
-            alert("Please enter a valid date in this format YYYY-MM-DD.");
+        if(!dateValidationRegex.test(date)){
+            flash("Please enter a valid date", "warning");
+            hasError = true;
+            return hasError;
+        } else {
+            hasError = false;
+            return hasError;
         }
-
-        return hasError;
     }
 
     function checkLength(fields, length){
         let hasError = false;
         fields.forEach(field => {
             if(field.length > length){
-                alert("Please enter a value less than " + length + " characters.");
+                flash("Please enter a value less than " + length + " characters.", "warning");
                 hasError = true;
             }
         })
@@ -104,8 +108,25 @@ require(__DIR__ . "/../../partials/nav.php");
         return hasError;
     }
 
+    function validateRequiredFields(fields, hasError){
+        fields.forEach((field, index) => {
+            if(field == null || field == ""){
+                flash("Please enter a value for " + getFieldName(index), "warning");
+                hasError = true;
+            }
+        })
+
+        return hasError;
+    }
+
+    function getFieldName(index){
+        let fieldNames = ["Title", "Description", "Content", "Publish Date", "News Source", "Category", "Country"];
+        return fieldNames[index];
+    }
+
     function validateForm(){
         event.preventDefault();
+        clearFlashMessages();
         var title = document.getElementById("title").value;
         var link = document.getElementById("link").value;
         var video_url = document.getElementById("video_url").value;
@@ -120,35 +141,39 @@ require(__DIR__ . "/../../partials/nav.php");
         let requiredFields = [title, content_description, content, publish_date, source_id, category, country];
         let isValid = requiredFields.every(field => field.trim().length !== 0);
         let checkLengthFields = [title, link, video_url, image_url, source_id, country, category];
+        let requiredFieldsCheck = validateRequiredFields(requiredFields, hasError);
+        let dateCheck = validateDate(publish_date, hasError);
+        let lengthCheck = checkLength(checkLengthFields, 500);
 
-        if(!isValid){
-            hasError = true;
-            alert("Please fill out all required fields.");
-        }
-
-        if(!validateURL(link, hasError)){
+        if(requiredFieldsCheck || dateCheck || lengthCheck){
+            return false;
+        } else {
             hasError = false;
         }
 
-        if(!validateURL(video_url, hasError)){
+        if(validateURL(link, hasError)){
+            return false;
+        } else {
             hasError = false;
         }
 
-        if(!validateURL(image_url, hasError)){
+        if(validateURL(video_url, hasError)){
+            return false;
+        } else {
             hasError = false;
         }
 
-        if(!validateDate(publish_date, hasError)){
+        if(validateURL(image_url, hasError)){
+            return false
+        } else {
             hasError = false;
         }
 
-        if(!checkLength(checkLengthFields, 500)){
-            hasError = false;
-        }
-
-        if(!hasError){
+        if(hasError){
+            return false;
+        } else {
             document.getElementById("form").submit();
-        }        
+        }
     }
 </script>
 
