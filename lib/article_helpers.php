@@ -1,30 +1,17 @@
 <?php
 function get_articles($article_limit)
 {
-    // If article limit is not empty then fetch the number of articles specified by the user
-    if(!empty($article_limit)){
-        $db = getDB();
-        $query = "SELECT id, api_id, title, link, video_url, content_description, content, publish_date, image_url, source_id, category, country, manual_check, created_by, content_hash FROM NewsArticles ORDER BY publish_date DESC LIMIT $article_limit";
-        $stmt = $db->prepare($query);
-        try{
-            $stmt->execute();
-            $result = $stmt->fetchAll();
-            return $result;
-        } catch(PDOException $e){
-            error_log("Error fetching articles from DB: " . var_export($e, true));
-        }
-    } else {
-        // If article limit is empty then fetch all articles
-        $db = getDB();
-        $query = "SELECT id, api_id, title, link, video_url, content_description, content, publish_date, image_url, source_id, category, country, manual_check, created_by, content_hash FROM NewsArticles ORDER BY publish_date DESC";
-        $stmt = $db->prepare($query);
-        try{
-            $stmt->execute();
-            $result = $stmt->fetchAll();
-            return $result;
-        } catch(PDOException $e){
-            error_log("Error fetching articles from DB: " . var_export($e, true));
-        }
+    error_log("get_articles article_limit: " . var_export($article_limit, true));
+
+    $db = getDB();
+    $query = "SELECT * FROM NewsArticles ORDER BY created DESC LIMIT $article_limit";
+    $stmt = $db->prepare($query);
+     try{
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        return $result;
+    } catch(PDOException $e){
+        error_log("Error fetching articles from DB: " . var_export($e, true));
     }
 }
 
