@@ -47,22 +47,54 @@ if(!is_logged_in()){
             }
         }
     ?>
-    <h1> Delete Article Confirmation</h1>
-    <h3> Are you sure you want to delete the article?</h3>
-    <h3> This action cannot be undone.</h3>
-    <form method="POST">
-        <input type="hidden" name="id" value="<?php echo $id;?>"/>
-        <input type="submit" class="btn btn-primary" name="delete" value="Delete"/>
-    </form>
-    <img src="<?php echo $result['image_url'];?>" alt="Article Image">
-    <h1><?php echo $result['title'];?></h1>
-    <h3><?php echo $result['publish_date'];?></h3>
-    <h3>Source: <?php echo $result['source_id'];?></h3>
-    <h3><?php echo $result['category'];?></h3>
-    <h3><?php echo $result['country'];?></h3>
-    <a class="btn btn-primary" href="<?php echo $result['link'];?>">Link to article</a>
-    <p><?php echo $result['content_description'];?></p>
-    <p><?php echo $result['content'];?></p>
+    <div class="container">
+        <div class="row">
+            <h1> Delete Article Confirmation</h1>
+        </div>
+        <div class="row">
+            <h3> Are you sure you want to delete the article? This action cannot be undone.</h3>
+
+        </div>
+        <div class="row">
+            <form method="POST">
+                <input type="hidden" name="id" value="<?php echo $id;?>"/>
+                <input type="submit" class="btn btn-danger" name="delete" value="Delete"/>
+            </form>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <img src="<?php echo $result['image_url'];?>" alt="Article Image">
+        </div>
+        <div class="row">
+            <h1><?php echo $result['title'];?></h1>
+        </div>
+        <div class="row">
+            <div class="col">
+                <h3><?php echo $result['publish_date'];?></h3>
+            </div>
+            <div class="col">
+                <a class="btn btn-primary" href="<?php echo $result['link'];?>">Link to article</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <h3>Source: <?php echo $result['source_id'];?></h3>
+            </div>
+            <div class="col">
+                <h3><?php echo $result['category'];?></h3>
+            </div>
+            <div class="col">
+                <h3><?php echo $result['country'];?></h3>
+            </div>
+        </div>
+        <div class="row">
+            <p><?php echo $result['content_description'];?></p>
+        </div>
+        <div class="row">
+            <p><?php echo $result['content'];?></p>
+        </div>
+    </div>
 </div>
 
 <?php require(__DIR__ . "/../../partials/flash.php"); ?>
