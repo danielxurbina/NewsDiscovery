@@ -1,0 +1,1 @@
+ALTER TABLE NewsArticles ADD COLUMN content_hash VARCHAR(64) NOT NULL;
