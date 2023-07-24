@@ -9,7 +9,7 @@ if(!is_logged_in()){
 
 ?>
 
-<div class="container-fluid">
+<div class="container">
     <?php 
         // Extract id from url
         $id = $_GET['id'];
@@ -21,8 +21,8 @@ if(!is_logged_in()){
 
         // Check if the article exists
         if (!$result) {
-            redirect("home.php");
             flash("Article does not exist", "warning");
+            redirect("home.php");
         }
     ?>
     <h1> Edit Article </h1>
@@ -196,7 +196,8 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
     $source_id = $_POST["source_id"];
     $category = $_POST["category"];
     $country = $_POST["country"];
-    $manual_check = 1;
+    // Check if the API ID is set, if it is then manual_check is set to 0, if not then manual_check is set to 1
+    $manual_check = $result['api_id'] ? 0 : 1;
     $created_by = getUserID("NewsArticles", $_GET["id"]);
     $content_hash = isset($content) ? hash("sha256", $content) : null;
     $ignore = ["id", "api_id"];
@@ -227,8 +228,6 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
         $hasError = true;
     }
 
-    error_log("Created by sssss: " . $created_by);
-
     if(!$hasError){
         $data = [
             "title" => $title, 
@@ -245,6 +244,8 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             "manual_check" => $manual_check,
             "content_hash" => $content_hash
         ];
+
+        error_log("Data: " . var_export($data, true));
 
         $db = getDB();
         updateArticles("NewsArticles", $data, $ignore, $_GET["id"]);

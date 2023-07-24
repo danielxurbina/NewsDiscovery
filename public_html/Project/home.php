@@ -9,49 +9,62 @@ if(!is_logged_in()){
 
 ?>
 
-<div class="container-fluid">
-        <div class="homepage-info">
-            <h1> News </h1>
-            <p> Welcome to the News page! </p>
-            <p> Here you can view all the news articles that have been created. </p>
-            <p> Type something in the input field to search the list of articles for specific items: </p>
-        </div>
-        <div class="filter-section">
-            <form method="POST" id="filterForm" action="">
-                <div class="col">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="linkflexSwitchDefault" onclick="toggleInput('articleInput')">
-                        <label class="form-check-label" for="flexSwitchDefault">Switch to enter the number of articles to display</label>
-                    </div> 
-                    <div id="articleInput" style="display: none;">
-                        <?php render_input(["type"=>"text", "id"=>"articleLimit", "placeholder"=>"Enter a number of articles to display (1-100)", "name"=>"articleLimit", "rules"=>["required"=>"false"]]);?>
-                        <button type="submit" class="btn btn-primary" onclick="validateFilter()">Submit</button>
-                    </div>
+<div class="container mt-3">
+    <div class="row">
+        <h1> News </h1>
+        <p> Welcome to the News page! </p>
+        <p> Here you can view all the news articles that have been created. </p>
+        <p> Type something in the input field to search the list of articles for specific items: </p>
+    </div>
+    <div class="row">
+        <form method="POST" id="filterForm" action="">
+            <div class="col">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="linkflexSwitchDefault" onclick="toggleInput('articleInput')">
+                    <label class="form-check-label" for="flexSwitchDefault">Switch to enter the number of articles to display</label>
+                </div> 
+                <div id="articleInput" style="display: none;">
+                    <?php render_input(["type"=>"text", "id"=>"articleLimit", "placeholder"=>"Enter a number of articles to display (1-100)", "name"=>"articleLimit", "rules"=>["required"=>"false"]]);?>
+                    <button type="submit" class="btn btn-primary" onclick="validateFilter()">Submit</button>
                 </div>
-            </form>
-        </div>
-        <div class="search-section">
+            </div>
+        </form>
+    </div>
+    <div class="row">
+        <div class="col">
             <form method="POST" id="searchForm" action="">
-                <div class="col">
-                    <input class="form-control" id="searchInput" name="searchInput" type="text" placeholder="Search..">
-                </div>
-                <div class="col">
-                    <button type="button" id="searchButton" class="btn btn-primary" onclick="searchFunction()">Search</button>
-                </div>
+                <input class="form-control" id="searchInput" name="searchInput" type="text" placeholder="Search..">
             </form>
         </div>
-        <?php         
+        <div class="col">
+            <button type="button" id="searchButton" class="btn btn-primary" onclick="searchFunction()">Search</button>
+
+        </div>
+    </div>
+</div>
+
+<div class="container">
+        <?php 
             // Set the default number of articles to display
             $article_limit = 10;
             $articles = [];
             $categories = [];
             $countries = [];
-
-            // Check if the user has entered a number of articles to display
-            if (isset($_POST['articleLimit'])) {
-                $article_limit = $_POST['articleLimit'];
+            
+           if(isset($_SESSION['article_limit'])){
+                $article_limit = $_SESSION['article_limit'];
                 $articles = get_articles($article_limit);
                 error_log("Article Limit: " . var_export($articles, true));
+
+                // Erase the session variable after it has been used so that if the user enters another number of articles to display, it will be used instead of the previous one
+                unset($_SESSION['article_limit']);
+            }
+            // Check if the user has entered a number of articles to display
+            else if (isset($_POST['articleLimit'])) {
+                $article_limit = $_POST['articleLimit'];
+                $_SESSION['article_limit'] = $article_limit;
+                $articles = get_articles($article_limit);
+                error_log("Article Limit xxxx: " . var_export($articles, true));
             }
             else if(isset($_POST['searchInput'])){
                 $searchInput = $_POST['searchInput'];
@@ -64,7 +77,7 @@ if(!is_logged_in()){
             }
             else{
                 $articles = get_articles($article_limit);
-                error_log("Articles: " . var_export($articles, true));
+                error_log("Articles yyyyy: " . var_export($articles, true));
             }
 
             // Fetch all categories from the database
