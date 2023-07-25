@@ -29,27 +29,40 @@ session_start();
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 
 <!-- include css and js files -->
-<link rel="stylesheet" href="<?php echo get_url('styles.css'); ?>">
 <script src="<?php echo get_url('helpers.js'); ?>"></script>
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #323357;">
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-            <?php if (is_logged_in()) : ?>
-                <li class="nav-item"><a class="nav-link" href="<?php echo get_url('home.php'); ?>">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?php echo get_url('profile.php'); ?>">Profile</a></li>
-            <?php endif; ?>
-            <?php if (!is_logged_in()) : ?>
-                <li class="nav-item"><a class="nav-link" href="<?php echo get_url('login.php'); ?>">Login</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?php echo get_url('register.php'); ?>">Register</a></li>
-            <?php endif; ?>
-            <?php if (has_role("Admin")) : ?>
-                <li class="nav-item"><a class="nav-link" href="<?php echo get_url('admin/create_role.php'); ?>">Create Role</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?php echo get_url('admin/list_roles.php'); ?>">List Roles</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?php echo get_url('admin/assign_roles.php'); ?>">Assign Roles</a></li>
-            <?php endif; ?>
-            <?php if (is_logged_in()) : ?>
-                <li class="nav-item"><a class="nav-link" href="<?php echo get_url('logout.php'); ?>">Logout</a></li>
-            <?php endif; ?>
-        </ul>
+<link rel="stylesheet" href="<?php echo get_url('styles.css'); ?>">
+<nav class="navbar navbar-expand-sm navbar-dark" style="background-color: #323357;">
+    <div class="container-fluid" id="navbarNav">
+        <a class="navbar-brand" href="<?php echo get_url('home.php'); ?>">News Discovery</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mynavbar">
+            <ul class="navbar-nav me-auto">
+                <?php if (is_logged_in()) : ?>
+                    <li class="nav-item"><a class="nav-link" href="<?php echo get_url('home.php'); ?>">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<?php echo get_url('profile.php'); ?>">Profile</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<?php echo get_url('news_article_creation.php'); ?>">Create Article</a></li>
+                <?php endif; ?>
+                <?php if (!is_logged_in()) : ?>
+                    <li class="nav-item"><a class="nav-link" href="<?php echo get_url('login.php'); ?>">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<?php echo get_url('register.php'); ?>">Register</a></li>
+                <?php endif; ?>
+                <?php if (has_role("Admin")) : ?>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Admin</a>
+                        <ul class="dropdown-menu">
+                            <li class="nav-item"><a class="dropdown-item" href="<?php echo get_url('admin/import_api_data.php'); ?>">Import API Data</a></li>
+                            <li class="nav-item"><a class="dropdown-item" href="<?php echo get_url('admin/create_role.php'); ?>">Create Role</a></li>
+                            <li class="nav-item"><a class="dropdown-item" href="<?php echo get_url('admin/list_roles.php'); ?>">List Roles</a></li>
+                            <li class="nav-item"><a class="dropdown-item" href="<?php echo get_url('admin/assign_roles.php'); ?>">Assign Roles</a></li>
+                        </ul>
+                    </li>
+                <?php endif; ?>
+                <?php if (is_logged_in()) : ?>
+                    <li class="nav-item"><a class="nav-link" href="<?php echo get_url('logout.php'); ?>">Logout</a></li>
+                <?php endif; ?>
+            </ul>
+        </div>
     </div>
 </nav>
