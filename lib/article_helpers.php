@@ -215,3 +215,66 @@ function delete_data($table, $id){
         flash("An error ocurred deleting data for table: " . $e->getMessage(), "danger");
     }
 }
+
+function get_user_liked_articles($user_id){
+    $db = getDB();
+    $query = "SELECT news_id FROM UserNewsInteractions WHERE user_id = :user_id AND interaction_type = 'like'";
+    $stmt = $db->prepare($query);
+    $stmt->bindValue(":user_id", $user_id, PDO::PARAM_INT);
+    try{
+        $stmt->execute();
+        $likedArticles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        error_log("get_user_liked_articles - Result: " . var_export($likedArticles, true));
+        return $likedArticles;
+    } catch(PDOException $e){
+        error_log("Error fetching articles from DB: " . var_export($e, true));
+    }
+}
+
+function user_has_liked($article_id, $user_id){
+    error_log("Checking if user: " . $user_id . " has liked article: " . $article_id);
+    $db = getDB();
+    $query = "SELECT * FROM UserNewsInteractions WHERE user_id = :user_id AND news_id = :news_id AND interaction_type = 'like'";
+    $stmt = $db->prepare($query);
+    $stmt->bindValue(":user_id", $user_id, PDO::PARAM_INT);
+    $stmt->bindValue(":news_id", $article_id, PDO::PARAM_INT);
+    try{
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        error_log("user_has_liked - Result: " . var_export($result, true));
+        if($result){
+            return true;
+        }
+    } catch(PDOException $e){
+        error_log("Error fetching articles from DB: " . var_export($e, true));
+    }
+}
+
+function toggle_like($article_id, $user_id){
+    error_log("Like Toggled for article: " . $article_id . " by user: " . $user_id);
+    $db = getDB();
+
+    if(user_has_liked($article_id, $user_id)){
+        // Delete the like
+        $query = "DELETE FROM UserNewsInteractions WHERE user_id = :user_id AND news_id = :news_id AND interaction_type = 'like'";
+        $stmt = $db->prepare($query);
+        $stmt->bindValue(":user_id", $user_id, PDO::PARAM_INT);
+        $stmt->bindValue(":news_id", $article_id, PDO::PARAM_INT);
+        try{
+            $stmt->execute();
+        } catch(PDOException $e){
+            error_log("Error fetching articles from DB: " . var_export($e, true));
+        }
+    } else {
+        // Add the like
+        $query = "INSERT INTO UserNewsInteractions (user_id, news_id, interaction_type) VALUES (:user_id, :news_id, 'like')";
+        $stmt = $db->prepare($query);
+        $stmt->bindValue(":user_id", $user_id, PDO::PARAM_INT);
+        $stmt->bindValue(":news_id", $article_id, PDO::PARAM_INT);
+        try{
+            $stmt->execute();
+        } catch(PDOException $e){
+            error_log("Error fetching articles from DB: " . var_export($e, true));
+        }
+    }
+}

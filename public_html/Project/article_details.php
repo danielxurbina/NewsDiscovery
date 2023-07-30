@@ -10,7 +10,9 @@ if(!is_logged_in()){
 ?>
 
 <div class="container">
-    <?php 
+    <?php
+        $isLiked = false;
+
         // Extract id from url
         $id = $_GET['id'];
 
@@ -31,6 +33,20 @@ if(!is_logged_in()){
             flash("Article does not exist", "warning");
             redirect("home.php");
         }
+
+        if(isset($_POST['likeButton'])){
+            // Get the article ID and user ID and call the helper function to toggle the like
+            $article_id = $id;
+            $user_id = get_user_id();
+            toggle_like($article_id, $user_id);
+        }
+
+        // Fetch the user's liked articles from the database
+        $userLikedArticles = get_user_liked_articles(get_user_id());
+        error_log("User Liked Articles: " . var_export($userLikedArticles, true));
+
+        // Check if the user has liked the article
+        $isLiked = in_array($id, array_column($userLikedArticles, 'news_id'));
     ?>
     <div class="row">
         <img id="articleImage" src="<?php echo $result['image_url'];?>" alt="Article Image">
@@ -45,6 +61,13 @@ if(!is_logged_in()){
         </div>
         <div class="col">
             <a id="articleLink" class="btn btn-primary" href="<?php echo $result['link'];?>">Link to article</a>
+            <form method="POST" id="likeButton" action="">
+                    <input type="hidden" name="articleId" value="<?php echo $article['id']; ?>">
+                <button type="submit" name="likeButton" class="btn btn-success">
+                    <i class="bi <?php echo ($isLiked ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'); ?>"></i>
+                    <span><?php echo ($isLiked ? 'Unlike' : 'Like'); ?></span>
+                </button>
+            </form>
             <?php if($result['created_by'] == get_user_id() || has_role("Admin")) : ?>
                 <a id="articleEdit" class="btn btn-warning" href="article_edit.php?id=<?php echo $result['id'];?>">Edit</a>
                 <a id="articleDelete" class="btn btn-danger" href="article_delete.php?id=<?php echo $result['id'];?>">Delete</a>
@@ -69,5 +92,15 @@ if(!is_logged_in()){
         <p id="articleContent"><?php echo $result['content'];?></p>
     </div>
 </div>
+
+<script>
+    function changeIcon(anchor){
+        var icon = anchor.querySelector("i");
+        icon.classList.toggle("bi-hand-thumbs-up-fill");
+        icon.classList.toggle("bi-hand-thumbs-up");
+
+        anchor.querySelector("span").innerHTML = icon.classList.contains("bi-hand-thumbs-up-fill") ? "Unlike" : "Like";
+    }
+</script>
 
 <?php require(__DIR__ . "/../../partials/flash.php"); ?>
