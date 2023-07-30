@@ -50,8 +50,26 @@ if(!is_logged_in()){
             $articles = [];
             $categories = [];
             $countries = [];
+            $isLiked = false;
+
+            // Check if the user has liked/unliked an article
+            if(isset($_POST['likeButton'])){
+                // Ensure that the user is logged in before processing the like/unlike request
+                if(!is_logged_in()){
+                    flash("You must be logged in to like an article", "warning");
+                    redirect("login.php");
+                }
+
+                // Get the article ID and user ID
+                $article_id = $_POST['articleId'];
+                error_log("Article ID: " . var_export($article_id, true));
+                $user_id = get_user_id();
+
+                // Call the helper function to toggle the like
+                toggle_like($article_id, $user_id);
+            }
             
-           if(isset($_SESSION['article_limit'])){
+            if(isset($_SESSION['article_limit'])){
                 $article_limit = $_SESSION['article_limit'];
                 $articles = get_articles($article_limit);
                 error_log("Article Limit: " . var_export($articles, true));
@@ -89,11 +107,17 @@ if(!is_logged_in()){
             error_log("Categories: " . var_export($categories, true));
             error_log("Countries: " . var_export($countries, true));
 
+            // Fetch the user's liked articles from the database
+            $userLikedArticles = get_user_liked_articles(get_user_id());
+            error_log("User Liked Articles: " . var_export($userLikedArticles, true));
+
             // Loop through the articles and display each one
             foreach ($articles as $article) {
                 error_log("Article: " . var_export($article, true));
                 $queryParam = "article_" . $article['id'];
-        ?>
+                // Check if the article's id exists in $userLikedArticles
+                $isLiked = in_array($article['id'], array_column($userLikedArticles, 'news_id'));
+        ?>  
                 <div class="container mt-3">
                     <div class="card">
                         <?php
@@ -113,6 +137,13 @@ if(!is_logged_in()){
                             <h4 class="card-title"><?php echo $article['title']; ?></h4>
                             <p class="card-text"><?php echo $article['content_description']; ?></p>
                             <a href="article_details.php?id=<?php echo $article['id']; ?>" class="btn btn-primary">Read More</a>
+                            <form method="POST" id="likeButton" action="">
+                                <input type="hidden" name="articleId" value="<?php echo $article['id']; ?>">
+                                <button type="submit" name="likeButton" class="btn btn-success">
+                                    <i class="bi <?php echo ($isLiked ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'); ?>"></i>
+                                    <span><?php echo ($isLiked ? 'Unlike' : 'Like'); ?></span>
+                                </button>
+                            </form>
                             <?php if ($article['created_by'] == get_user_id()) : ?>
                                 <a href="article_edit.php?id=<?php echo $article['id']; ?>" class="btn btn-warning">Edit</a>
                                 <a href="article_delete.php?id=<?php echo $article['id']; ?>" class="btn btn-danger">Delete</a>
