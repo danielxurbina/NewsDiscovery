@@ -97,3 +97,33 @@ function get_user_liked_articles($user_id){
         error_log("Error fetching articles from DB: " . var_export($e, true));
     }    
 }
+
+function get_user_created_articles($user_id){
+    $db = getDB();
+    $query = "SELECT * FROM NewsArticles WHERE created_by = :user_id";
+    $stmt = $db->prepare($query);
+    $stmt->bindValue(":user_id", $user_id, PDO::PARAM_INT);
+    try{
+        $stmt->execute();
+        $createdArticles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        error_log("get_user_created_articles - Result: " . var_export($createdArticles, true));
+        return $createdArticles;
+    } catch(PDOException $e){
+        error_log("Error fetching articles from DB: " . var_export($e, true));
+    }
+}
+
+function get_user_info($user_id){
+    $db = getDB();
+    $query = "SELECT * FROM Users WHERE id = :user_id";
+    $stmt = $db->prepare($query);
+    $stmt->bindValue(":user_id", $user_id, PDO::PARAM_INT);
+    try{
+        $stmt->execute();
+        $userInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+        error_log("get_user_info - Result: " . var_export($userInfo, true));
+        return $userInfo;
+    } catch(PDOException $e){
+        error_log("Error fetching user info from DB: " . var_export($e, true));
+    }
+}
