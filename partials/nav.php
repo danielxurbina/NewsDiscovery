@@ -43,6 +43,7 @@ session_start();
                 <?php if (is_logged_in()) : ?>
                     <li class="nav-item"><a class="nav-link" href="<?php echo get_url('home.php'); ?>">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?php echo get_url('profile.php'); ?>">Profile</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<?php echo get_url('my_saved_articles.php'); ?>">Saved Articles</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?php echo get_url('news_article_creation.php'); ?>">Create Article</a></li>
                 <?php endif; ?>
                 <?php if (!is_logged_in()) : ?>

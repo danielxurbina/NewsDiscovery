@@ -4,7 +4,7 @@ require(__DIR__ . "/../../partials/nav.php");
 // If user is not logged in redirect to login page
 if(!is_logged_in()){
     flash("You must be logged in to view this page", "warning");
-    die(header("Location: login.php"));
+    redirect("login.php");
 }
 
 ?>
@@ -108,7 +108,7 @@ if(!is_logged_in()){
             error_log("Countries: " . var_export($countries, true));
 
             // Fetch the user's liked articles from the database
-            $userLikedArticles = get_user_liked_articles(get_user_id());
+            $userLikedArticles = get_user_liked_articles(get_user_id(), $article_limit);
             error_log("User Liked Articles: " . var_export($userLikedArticles, true));
 
             // Loop through the articles and display each one
