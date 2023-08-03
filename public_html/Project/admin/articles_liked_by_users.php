@@ -22,6 +22,8 @@ if(isset($_SESSION['filter_applied'])){
     unset($_SESSION['filter_applied']);
 }
 
+$userNewsInteractions = get_all_user_liked_articles();
+
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
     if(isset($_POST['filterUsername'])){
         $username = $_POST['filterUsername'];
@@ -55,15 +57,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
             $users = get_multiple_user_infos($userIds);
         }
     } 
-    else{
-        foreach($userNewsInteractions as $interaction){
-            $userIds[] = $interaction['user_id'];
-            $news_ids[] = $interaction['news_id'];
-            
-            $articles = get_articles($article_limit, $news_ids);
-            $users = get_multiple_user_infos($userIds);
-        }
-    }
 
     if(isset($_POST['unlikeButton'])){
         // Get the article id
@@ -93,6 +86,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         flash("All liked articles have been removed for $username", "success");
         redirect("/Project/admin/articles_liked_by_users.php");
     }
+}
+
+foreach($userNewsInteractions as $interaction){
+    $userIds[] = $interaction['user_id'];
+    $news_ids[] = $interaction['news_id'];
+    
+    $articles = get_articles($article_limit, $news_ids);
+    $users = get_multiple_user_infos($userIds);
 }
 
 // Count the number of likes for each article

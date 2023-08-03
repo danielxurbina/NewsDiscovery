@@ -2,7 +2,20 @@
 function searchFilter($table, $search){
     $db = getDB();
     // get News Articles that match the search request and match it with the title of the article
-    $query = "SELECT id, api_id, title, link, video_url, content_description, content, publish_date, image_url, source_id, category, country, manual_check, created_by, content_hash FROM $table WHERE title LIKE '%$search%' ORDER BY publish_date DESC";
+    $query = "SELECT * FROM $table WHERE title LIKE '%$search%' ORDER BY publish_date DESC";
+    $stmt = $db->prepare($query);
+    try{
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        return $result;
+    } catch(PDOException $e){
+        error_log("Error fetching articles from DB: " . var_export($e, true));
+    }
+}
+
+function searchTitle($search){
+    $db = getDB();
+    $query = "SELECT id FROM NewsArticles WHERE title LIKE '%$search%'";
     $stmt = $db->prepare($query);
     try{
         $stmt->execute();
