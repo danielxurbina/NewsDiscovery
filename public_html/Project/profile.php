@@ -5,25 +5,21 @@ if(!is_logged_in()){
     redirect("login.php");
 }
 
-$userId = get_user_id();
+// Get the user ID from the URL
+$userId = $_GET['id'];
 $userInformation = get_user_info($userId);
 $createdArticles = get_user_created_articles($userId);
 $likedArticles = get_user_liked_articles($userId);
-
-error_log("User Information: " . var_export($userInformation, true));
-error_log("Created Articles: " . var_export($createdArticles, true));
-error_log("Liked Articles: " . var_export($likedArticles, true));
-
+$userLikedArticles = get_user_liked_articles(get_user_id());
 
 if(isset($_POST['likeButton'])){
     // Get the article ID and user ID
     $article_id = $_POST['articleId'];
-    error_log("Article ID: " . var_export($article_id, true));
     $user_id = get_user_id();
 
     // Call the helper function to toggle the like
     toggle_like($article_id, $user_id);
-    redirect("profile.php");
+    redirect("profile.php?id=$userId");
 }
 ?>
 <section>
@@ -59,8 +55,7 @@ if(isset($_POST['likeButton'])){
             <?php 
                 foreach($createdArticles as $article){
                     $queryParam = "article_" . $article['id'];
-                    $isLiked = in_array($article['id'], array_column($likedArticles, 'news_id'));
-                    error_log("Is Liked: " . var_export($isLiked, true));
+                    $isLiked = in_array($article['id'], array_column($userLikedArticles, 'news_id'));
             ?>
                 <div class="card mb-4">
                     <div class="card-body">

@@ -1,4 +1,5 @@
 <?php
+// this function is used to save data to a table
 function save_data($table, $data, $ignore)
 {
     $table = se($table, null, null, false);    
@@ -25,6 +26,7 @@ function save_data($table, $data, $ignore)
     }
 }
 
+// this function is used to update data in a table
 function updateArticles($table, $changes, $ignore, $id){
     $table = se($table, null, null, false);
     $db = getDB();
@@ -50,6 +52,7 @@ function updateArticles($table, $changes, $ignore, $id){
     }
 }
 
+// this function is used to delete data from a table
 function delete_data($table, $id){
     $db = getDB();
     $stmt = $db->prepare("DELETE FROM $table WHERE id=:id");
@@ -62,6 +65,7 @@ function delete_data($table, $id){
     }
 }
 
+// this function is used to check if a user has liked an article
 function user_has_liked($article_id, $user_id){
     error_log("Checking if user: " . $user_id . " has liked article: " . $article_id);
     $db = getDB();
@@ -81,6 +85,7 @@ function user_has_liked($article_id, $user_id){
     }
 }
 
+// this function is used to toggle a like on an article for a user
 function toggle_like($article_id, $user_id){
     error_log("Like Toggled for article: " . $article_id . " by user: " . $user_id);
     $db = getDB();
@@ -110,15 +115,46 @@ function toggle_like($article_id, $user_id){
     }
 }
 
-function removeAllLikes($user_id){
-    // Remove all likes associated with a user from the UserNewsInteractions table
+// this function is used to remove all likes associated with a single user and if a user ID is not passed in it will remove all likes from the table
+function removeAllLikes($user_id = null){
     $db = getDB();
-    $query = "DELETE FROM UserNewsInteractions WHERE user_id = :user_id AND interaction_type = 'like'";
-    $stmt = $db->prepare($query);
-    $stmt->bindValue(":user_id", $user_id, PDO::PARAM_INT);
-    try{
-        $stmt->execute();
-    } catch(PDOException $e){
-        error_log("Error fetching articles from DB: " . var_export($e, true));
+
+    if(!empty($user_id)){
+        // Remove all likes associated with a single user from the UserNewsInteractions table
+        $query = "DELETE FROM UserNewsInteractions WHERE user_id = :user_id AND interaction_type = 'like'";
+        $stmt = $db->prepare($query);
+        $stmt->bindValue(":user_id", $user_id, PDO::PARAM_INT);
+        try{
+            $stmt->execute();
+        } catch(PDOException $e){
+            error_log("Error fetching articles from DB: " . var_export($e, true));
+        }
+    }
+    else{
+        // Remove all likes from the UserNewsInteractions table
+        $query = "DELETE FROM UserNewsInteractions WHERE interaction_type = 'like'";
+        $stmt = $db->prepare($query);
+        try{
+            $stmt->execute();
+        } catch(PDOException $e){
+            error_log("Error fetching articles from DB: " . var_export($e, true));
+        }
+    }
+}
+
+// this function is used to remove all likes associated with a single article
+function removeArticleLikes($user_ids, $article_id){
+    $db = getDB();
+    
+    if(!empty($user_ids)){
+        // Remove all likes associated with a single user from the UserNewsInteractions table
+        $query = "DELETE FROM UserNewsInteractions WHERE user_id IN (" . join(",", $user_ids) . ") AND news_id = :news_id AND interaction_type = 'like'";
+        $stmt = $db->prepare($query);
+        $stmt->bindValue(":news_id", $article_id, PDO::PARAM_INT);
+        try{
+            $stmt->execute();
+        } catch(PDOException $e){
+            error_log("Error fetching articles from DB: " . var_export($e, true));
+        }
     }
 }
