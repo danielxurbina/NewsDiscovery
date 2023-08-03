@@ -42,7 +42,13 @@ session_start();
             <ul class="navbar-nav me-auto">
                 <?php if (is_logged_in()) : ?>
                     <li class="nav-item"><a class="nav-link" href="<?php echo get_url('home.php'); ?>">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="<?php echo get_url('profile.php'); ?>">Profile</a></li>
+                    <li class="nav-item">
+                        <?php 
+                            $user_id = get_user_id();
+                            $profile_link = get_url('profile.php?id=' . $user_id);
+                        ?>
+                        <a class="nav-link" href="<?php echo $profile_link; ?>">Profile</a>
+                    </li>
                     <li class="nav-item"><a class="nav-link" href="<?php echo get_url('my_saved_articles.php'); ?>">Saved Articles</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?php echo get_url('news_article_creation.php'); ?>">Create Article</a></li>
                 <?php endif; ?>
@@ -58,6 +64,7 @@ session_start();
                             <li class="nav-item"><a class="dropdown-item" href="<?php echo get_url('admin/create_role.php'); ?>">Create Role</a></li>
                             <li class="nav-item"><a class="dropdown-item" href="<?php echo get_url('admin/list_roles.php'); ?>">List Roles</a></li>
                             <li class="nav-item"><a class="dropdown-item" href="<?php echo get_url('admin/assign_roles.php'); ?>">Assign Roles</a></li>
+                            <li class="nav-item"><a class="dropdown-item" href="<?php echo get_url('admin/articles_liked_by_users.php'); ?>">All User Liked Articles</a></li>
                         </ul>
                     </li>
                 <?php endif; ?>

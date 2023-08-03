@@ -34,8 +34,6 @@ function get_articles_by_id($id){
     $stmt = $db->prepare("SELECT * FROM NewsArticles WHERE id = :id");
     $stmt->execute([":id"=>$id]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    error_log("result: " . var_export($result, true));
     return $result;
 }
 
@@ -71,8 +69,6 @@ function getUserID($table, $id){
     $r = $stmt->execute([":id"=>$id]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    error_log("result: " . var_export($result, true));
-
     // Check if the article exits
     if(!$result){
         error_log("Article does not exist");
@@ -83,21 +79,36 @@ function getUserID($table, $id){
     return $userID;
 }
 
-function get_user_liked_articles($user_id){
+// this function is to get all articles liked by a user
+function get_user_liked_articles($user_id = null){
     $db = getDB();
-    $query = "SELECT news_id FROM UserNewsInteractions WHERE user_id = :user_id AND interaction_type = 'like'";
+    $query = "SELECT news_id, user_id FROM UserNewsInteractions WHERE user_id = :user_id AND interaction_type = 'like'";
     $stmt = $db->prepare($query);
     $stmt->bindValue(":user_id", $user_id, PDO::PARAM_INT);
     try{
         $stmt->execute();
         $likedArticles = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        error_log("get_user_liked_articles - Result: " . var_export($likedArticles, true));
         return $likedArticles;
     } catch(PDOException $e){
         error_log("Error fetching articles from DB: " . var_export($e, true));
     }    
 }
 
+// this function is to get all articles liked by all users
+function get_all_user_liked_articles(){
+    $db = getDB();
+    $query = "SELECT news_id, user_id FROM UserNewsInteractions WHERE interaction_type = 'like'";
+    $stmt = $db->prepare($query);
+    try{
+        $stmt->execute();
+        $likedArticles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $likedArticles;
+    } catch(PDOException $e){
+        error_log("Error fetching articles from DB: " . var_export($e, true));
+    }    
+}
+
+// this function is to get all articles created by a user
 function get_user_created_articles($user_id){
     $db = getDB();
     $query = "SELECT * FROM NewsArticles WHERE created_by = :user_id";
@@ -106,13 +117,13 @@ function get_user_created_articles($user_id){
     try{
         $stmt->execute();
         $createdArticles = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        error_log("get_user_created_articles - Result: " . var_export($createdArticles, true));
         return $createdArticles;
     } catch(PDOException $e){
         error_log("Error fetching articles from DB: " . var_export($e, true));
     }
 }
 
+// this function is to get user info by user id
 function get_user_info($user_id){
     $db = getDB();
     $query = "SELECT * FROM Users WHERE id = :user_id";
@@ -121,8 +132,37 @@ function get_user_info($user_id){
     try{
         $stmt->execute();
         $userInfo = $stmt->fetch(PDO::FETCH_ASSOC);
-        error_log("get_user_info - Result: " . var_export($userInfo, true));
         return $userInfo;
+    } catch(PDOException $e){
+        error_log("Error fetching user info from DB: " . var_export($e, true));
+    }
+}
+
+// this function is to get user info by username
+function get_user_by_username($username){
+    $db = getDB();
+    $query = "SELECT * FROM Users WHERE username = :username";
+    $stmt = $db->prepare($query);
+    $stmt->bindValue(":username", $username, PDO::PARAM_STR);
+    try{
+        $stmt->execute();
+        $userInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $userInfo;
+    } catch(PDOException $e){
+        error_log("Error fetching user info from DB: " . var_export($e, true));
+    }
+}
+
+// this function is used to get multiple user info at once
+function get_multiple_user_infos($user_ids=[]){
+    $db = getDB();
+    $inClause = "AND id IN (" . implode(",", $user_ids) . ")";
+    $query = "SELECT * FROM Users WHERE 1 $inClause";
+    $stmt = $db->prepare($query);
+    try{
+        $stmt->execute();
+        $userInfos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $userInfos;
     } catch(PDOException $e){
         error_log("Error fetching user info from DB: " . var_export($e, true));
     }
