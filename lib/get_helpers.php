@@ -108,6 +108,60 @@ function get_all_user_liked_articles(){
     }    
 }
 
+// this function is to get all articles with no likes
+function get_articles_with_no_likes($article_limit, $news_ids = [], $news_ids_with_likes = []){
+    $db = getDB();
+
+    if(!empty($news_ids)){
+        $news_ids_without_likes = array_diff($news_ids, $news_ids_with_likes);
+
+        if(empty($news_ids_without_likes)){
+            return [];
+        }
+
+        $inClause = "AND id IN (" . implode(",", $news_ids_without_likes) . ")";
+        $query = "SELECT * FROM NewsArticles WHERE 1 $inClause ORDER BY created DESC LIMIT $article_limit";
+        $stmt = $db->prepare($query);
+
+        try{
+            $stmt->execute();
+            $result = $stmt->fetchAll();
+            return $result;
+        } catch(PDOException $e){
+            error_log("Error fetching articles from DB: " . var_export($e, true));
+        }
+    }
+    else{
+        $inClause = "AND id NOT IN (" . implode(",", $news_ids_with_likes) . ")";
+        $query = "SELECT * FROM NewsArticles WHERE 1 $inClause ORDER BY created DESC LIMIT $article_limit";
+        $stmt = $db->prepare($query);
+        try{
+            $stmt->execute();
+            $result = $stmt->fetchAll();
+            return $result;
+        } catch(PDOException $e){
+            error_log("Error fetching articles from DB: " . var_export($e, true));
+        }
+    }
+}
+
+// this function is to get an article with no likes by the news ID passed in from a search input from the form
+function get_article_with_no_likes($article_limit, $news_id, $news_ids_with_likes = []){
+    $db = getDB();
+    if(!in_array($news_id, $news_ids_with_likes)){
+        $query = "SELECT * FROM NewsArticles WHERE id = :news_id";
+        $stmt = $db->prepare($query);
+        $stmt->bindValue(":news_id", $news_id, PDO::PARAM_INT);
+        try{
+            $stmt->execute();
+            $result = $stmt->fetchAll();
+            return $result;
+        } catch(PDOException $e){
+            error_log("Error fetching articles from DB: " . var_export($e, true));
+        }
+    }
+}
+
 // this function is to get all articles created by a user
 function get_user_created_articles($user_id){
     $db = getDB();

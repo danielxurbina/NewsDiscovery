@@ -65,6 +65,7 @@ session_start();
                             <li class="nav-item"><a class="dropdown-item" href="<?php echo get_url('admin/list_roles.php'); ?>">List Roles</a></li>
                             <li class="nav-item"><a class="dropdown-item" href="<?php echo get_url('admin/assign_roles.php'); ?>">Assign Roles</a></li>
                             <li class="nav-item"><a class="dropdown-item" href="<?php echo get_url('admin/articles_liked_by_users.php'); ?>">All User Liked Articles</a></li>
+                            <li class="nav-item"><a class="dropdown-item" href="<?php echo get_url('admin/articles_not_liked_by_users.php'); ?>">All Articles With No Likes</a></li>
                         </ul>
                     </li>
                 <?php endif; ?>
