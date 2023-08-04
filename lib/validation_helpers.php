@@ -38,16 +38,12 @@ function validateDate($date, $hasError)
         return $hasError;
     }
 
-    error_log("validateDate date: " . var_export($date, true));
-
     // Check if the date is in the correct format
     $dateValidationRegex = "/^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$/";
     if(!preg_match($dateValidationRegex, $date)){
         $hasError = true;
         return $hasError;
     }
-
-    error_log("validateDate date after regex: " . var_export($date, true));
 
     $hasError = false;
     return $hasError;

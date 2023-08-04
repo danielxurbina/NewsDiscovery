@@ -86,7 +86,7 @@ if(!is_logged_in()){
             }
             else if(isset($_POST['searchInput'])){
                 $searchInput = $_POST['searchInput'];
-                $articles = searchFilter('NewsArticles', $searchInput);
+                $articles = searchTitle($article_limit, $searchInput);
                 // If the articles array is empty display a message that no articles were found
                 if(empty($articles)){
                     flash("No articles found", "info");

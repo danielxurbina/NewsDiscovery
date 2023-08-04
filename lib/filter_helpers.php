@@ -1,21 +1,7 @@
 <?php
-function searchFilter($table, $search){
+function searchTitle($article_limit, $search){
     $db = getDB();
-    // get News Articles that match the search request and match it with the title of the article
-    $query = "SELECT * FROM $table WHERE title LIKE '%$search%' ORDER BY publish_date DESC";
-    $stmt = $db->prepare($query);
-    try{
-        $stmt->execute();
-        $result = $stmt->fetchAll();
-        return $result;
-    } catch(PDOException $e){
-        error_log("Error fetching articles from DB: " . var_export($e, true));
-    }
-}
-
-function searchTitle($search){
-    $db = getDB();
-    $query = "SELECT id FROM NewsArticles WHERE title LIKE '%$search%'";
+    $query = "SELECT * FROM NewsArticles WHERE title LIKE '%$search%' ORDER BY created DESC LIMIT $article_limit";
     $stmt = $db->prepare($query);
     try{
         $stmt->execute();
@@ -40,5 +26,18 @@ function searchLikedArticles($table, $search, $user_id){
         return $result;
     } catch(PDOException $e){
         error_log("Error fetching articles from DB: " . var_export($e, true));
+    }
+}
+
+function searchPartiallyMatchedUser($article_limit, $search){
+    $db = getDB();
+    $query = "SELECT * FROM Users WHERE username LIKE '%$search%' LIMIT $article_limit";
+    $stmt = $db->prepare($query);
+    try{
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        return $result;
+    } catch(PDOException $e){
+        error_log("Error fetching partially matched users from DB: " . var_export($e, true));
     }
 }
