@@ -28,7 +28,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         if($articleTitle == ''){
             $userNewsInteractions = get_all_user_liked_articles();
         } else {
-            $article = searchTitle($articleTitle);
+            $article = searchTitle($article_limit, $articleTitle);
             if($article == false){
                 flash("Article does not exist", "warning");
                 redirect("/Project/admin/articles_not_liked_by_users.php");

@@ -149,7 +149,7 @@ function get_articles_with_no_likes($article_limit, $news_ids = [], $news_ids_wi
 function get_article_with_no_likes($article_limit, $news_id, $news_ids_with_likes = []){
     $db = getDB();
     if(!in_array($news_id, $news_ids_with_likes)){
-        $query = "SELECT * FROM NewsArticles WHERE id = :news_id";
+        $query = "SELECT * FROM NewsArticles WHERE id = :news_id ORDER BY created DESC LIMIT $article_limit";
         $stmt = $db->prepare($query);
         $stmt->bindValue(":news_id", $news_id, PDO::PARAM_INT);
         try{
@@ -165,7 +165,7 @@ function get_article_with_no_likes($article_limit, $news_id, $news_ids_with_like
 // this function is to get all articles created by a user
 function get_user_created_articles($user_id){
     $db = getDB();
-    $query = "SELECT * FROM NewsArticles WHERE created_by = :user_id";
+    $query = "SELECT * FROM NewsArticles WHERE created_by = :user_id ORDER BY created DESC";
     $stmt = $db->prepare($query);
     $stmt->bindValue(":user_id", $user_id, PDO::PARAM_INT);
     try{
