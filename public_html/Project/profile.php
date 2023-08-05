@@ -21,6 +21,11 @@ if(isset($_POST['likeButton'])){
     toggle_like($article_id, $user_id);
     redirect("profile.php?id=$userId");
 }
+
+function convertDate($date){
+    $date = date_create($date);
+    return date_format($date, "m/d/Y");
+}
 ?>
 <section>
     <div class="row">
@@ -58,45 +63,39 @@ if(isset($_POST['likeButton'])){
                     $isLiked = in_array($article['id'], array_column($userLikedArticles, 'news_id'));
             ?>
                 <div class="card mb-4">
-                    <div class="card-body">
-                        <div class="row" id="imageRow">
-                            <?php
-                                // Check if the article has a valid image_url
-                                if (!empty($article['image_url'])) {
-                                    ?>
-                                    <img src="<?php echo $article['image_url']; ?>" class="card-img-top" alt="<?php echo $article['title']; ?>">
-                                    <?php
-                                } else {
-                                    // If image_url is null, display a random image from the specified URL
-                                    ?>
+                    <div class="card h-100">
+                        <?php
+                            // Check if the article has a valid image_url
+                            if (!empty($article['image_url'])) {
+                                ?>
+                                    <img src="<?php echo $article['image_url']; ?>" class="card-img-top" alt="<?php echo $article['title']; ?>" style="width:100%">
+                                <?php
+                            } else {
+                                // If image_url is null, display a random image from the specified URL
+                                ?>
                                     <img src="https://source.unsplash.com/user/c_v_r/?<?php echo $queryParam; ?>" class="card-img-top" alt="<?php echo $article['title']; ?>">
-                                    <?php
-                                }
-                            ?>
+                                <?php
+                            }
+                        ?>
+                        <div class="card-body">
+                            <h5 class="card-title"><?php se($article['title'])?></h5>
+                            <p class="card-text"><?php se($article['content_description'])?></p>
+                            <a href="article_details.php?id=<?php echo $article['id']; ?>" class="btn btn-outline-primary">Read More</a>
+                            <button type="submit" id="likeButton_<?php echo $article['id'];?>" name="likeButton" class="btn btn-outline-success" onclick="toggleLike(<?php echo $article['id'];?>)" value="<?php echo $article['id'];?>">
+                                <i class="bi <?php echo ($isLiked ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'); ?>"></i>
+                                <span><?php echo ($isLiked ? 'Unlike' : 'Like'); ?></span>
+                            </button>
+                            <?php if ($article['created_by'] == get_user_id()) : ?>
+                                <a href="article_edit.php?id=<?php echo $article['id']; ?>" class="btn btn-outline-warning">Edit</a>
+                                <a href="article_delete.php?id=<?php echo $article['id']; ?>" class="btn btn-outline-danger">Delete</a>
+                            <?php endif; ?>
+                            <?php if(has_role("Admin") && $article['created_by'] != get_user_id()) : ?>
+                                <a href="article_edit.php?id=<?php echo $article['id']; ?>" class="btn btn-outline-warning">Edit</a>
+                                <a href="article_delete.php?id=<?php echo $article['id']; ?>" class="btn btn-outline-danger">Delete</a>
+                            <?php endif ?>
                         </div>
-                        <div class="row" id="contentRow">
-                            <h4 class="mb-0"><?php se($article['title'])?></h4>
-                            <p class="mb-0"><?php se($article['content_description'])?></p>
-                        </div>
-                        <div class="row" id="buttonRow">
-                            <div class="col-lg-6">
-                                <a href="article_details.php?id=<?php echo $article['id']; ?>" class="btn btn-primary">Read More</a>
-                            </div>
-                            <div class="col-lg-6">
-                                <form method="POST" id="likeButton" action="">
-                                    <input type="hidden" name="articleId" value="<?php echo $article['id']; ?>">
-                                    <button type="submit" name="likeButton" class="btn btn-success">
-                                        <i class="bi <?php echo ($isLiked ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'); ?>"></i>
-                                        <span><?php echo ($isLiked ? 'Unlike' : 'Like'); ?></span>
-                                    </button>
-                                </form>
-                            </div>
-                            <div class="col-lg-6">
-                                <a href="article_edit.php?id=<?php echo $article['id']; ?>" class="btn btn-warning">Edit</a>
-                            </div>
-                            <div class="col-lg-6">
-                                <a href="article_delete.php?id=<?php echo $article['id']; ?>" class="btn btn-danger">Delete</a>
-                            </div>
+                        <div class="card-footer">
+                            <small class="text-muted" style="float:left">Published on <?php echo convertDate($article['publish_date']); ?></small>
                         </div>
                     </div>
                 </div>
@@ -106,3 +105,33 @@ if(isset($_POST['likeButton'])){
         </div>
     </div>
 </section>
+
+<script>
+    function toggleLike(articleId){
+        let val = document.getElementById("likeButton_" + articleId).value;
+        console.log(val);
+        fetch("like_article.php", {
+            method: "POST",
+            headers: {
+                "Content-type": "application/x-www-form-urlencoded",
+                "X-Requested-With": "XMLHttpRequest",
+            },
+            // include the article id and user id in the request body
+            body: "articleId=" + articleId + "&userId=" + <?php echo get_user_id(); ?>
+        }).then(response =>response.json())
+        .then(data => {
+            console.log(data);
+            if(data.action === "added"){
+                document.getElementById("likeButton_" + articleId).innerHTML = '<i class="bi bi-hand-thumbs-up-fill"></i> Unlike';
+            } else if(data.action === "deleted") {
+                document.getElementById("likeButton_" + articleId).innerHTML = '<i class="bi bi-hand-thumbs-up"></i> Like';
+            }
+        })
+        .catch(err => {
+            console.log(err);
+        })
+    }
+
+</script>
+
+<?php require(__DIR__ . "/../../partials/flash.php"); ?>

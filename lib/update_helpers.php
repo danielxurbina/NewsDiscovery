@@ -98,8 +98,9 @@ function toggle_like($article_id, $user_id){
         $stmt->bindValue(":news_id", $article_id, PDO::PARAM_INT);
         try{
             $stmt->execute();
+            echo json_encode(["status" => "success", "action" => "deleted"]);
         } catch(PDOException $e){
-            error_log("Error fetching articles from DB: " . var_export($e, true));
+            error_log("Error deleting likes from DB: " . var_export($e, true));
         }
     } else {
         // Add the like
@@ -109,8 +110,35 @@ function toggle_like($article_id, $user_id){
         $stmt->bindValue(":news_id", $article_id, PDO::PARAM_INT);
         try{
             $stmt->execute();
+            echo json_encode(["status" => "success", "action" => "added"]);
         } catch(PDOException $e){
-            error_log("Error fetching articles from DB: " . var_export($e, true));
+            error_log("Error inserting likes into DB: " . var_export($e, true));
+        }
+    }
+}
+
+function assign_like($article_id, $user_id){
+    $db = getDB();
+
+    if(user_has_liked($article_id, $user_id)){
+        $query = "DELETE FROM UserNewsInteractions WHERE user_id = :user_id AND news_id = :news_id AND interaction_type = 'like'";
+        $stmt = $db->prepare($query);
+        $stmt->bindValue(":user_id", $user_id, PDO::PARAM_INT);
+        $stmt->bindValue(":news_id", $article_id, PDO::PARAM_INT);
+        try{
+            $stmt->execute();
+        } catch(PDOException $e){
+            error_log("Error deleting likes from DB: " . var_export($e, true));
+        }
+    } else {
+        $query = "INSERT INTO UserNewsInteractions (user_id, news_id, interaction_type) VALUES (:user_id, :news_id, 'like')";
+        $stmt = $db->prepare($query);
+        $stmt->bindValue(":user_id", $user_id, PDO::PARAM_INT);
+        $stmt->bindValue(":news_id", $article_id, PDO::PARAM_INT);
+        try{
+            $stmt->execute();
+        } catch(PDOException $e){
+            error_log("Error inserting likes into DB: " . var_export($e, true));
         }
     }
 }
