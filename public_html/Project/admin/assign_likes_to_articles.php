@@ -69,7 +69,7 @@ if (isset($_POST["selectedUsers"]) && isset($_POST["selectedArticles"])) {
 
     foreach($selectedArticles as $articleID){
         foreach($selectedUsers as $userID){
-            toggle_like($articleID, $userID);
+            assign_like($articleID, $userID);
         }
     }
 }

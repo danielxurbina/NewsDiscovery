@@ -121,13 +121,10 @@ foreach($articles as $article){
                             Read More
                             <i class="bi bi-newspaper ms-2"></i>
                         </a>
-                        <form method="POST" id="likeButton" action="">
-                            <input type="hidden" name="articleId" value="<?php echo $article['id']; ?>">
-                            <button type="submit" name="likeButton" class="btn btn-link m-0 text-reset" data-ripple-color="primary" style="text-decoration: none; color: inherit">
-                                <i class="bi <?php echo ($isLiked ? 'bi-hand-thumbs-up-fill ms-2' : 'bi-hand-thumbs-up ms-2'); ?>"></i>
+                        <button type="submit" id="likeButton_<?php echo $article['id'];?>" name="likeButton" data-ripple-color="primary" style="text-decoration: none; color: inherit" class="btn btn-link m-0 text-reset" onclick="toggleLike(<?php echo $article['id'];?>)" value="<?php echo $article['id'];?>">
+                                <i class="bi <?php echo ($isLiked ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'); ?>"></i>
                                 <span><?php echo ($isLiked ? 'Unlike' : 'Like'); ?></span>
-                            </button>
-                        </form>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -145,6 +142,31 @@ foreach($articles as $article){
             console.log("toggle off");
             input.style.display = "none";
         }
+    }
+
+    function toggleLike(articleId){
+        let val = document.getElementById("likeButton_" + articleId).value;
+        console.log(val);
+        fetch("like_article.php", {
+            method: "POST",
+            headers: {
+                "Content-type": "application/x-www-form-urlencoded",
+                "X-Requested-With": "XMLHttpRequest",
+            },
+            // include the article id and user id in the request body
+            body: "articleId=" + articleId + "&userId=" + <?php echo get_user_id(); ?>
+        }).then(response =>response.json())
+        .then(data => {
+            console.log(data);
+            if(data.action === "added"){
+                document.getElementById("likeButton_" + articleId).innerHTML = '<i class="bi bi-hand-thumbs-up-fill"></i> Unlike';
+            } else if(data.action === "deleted") {
+                document.getElementById("likeButton_" + articleId).innerHTML = '<i class="bi bi-hand-thumbs-up"></i> Like';
+            }
+        })
+        .catch(err => {
+            console.log(err);
+        })
     }
 
     function validateFilter() {
