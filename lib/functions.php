@@ -31,6 +31,8 @@ require_once(__DIR__ . "/data_mapping.php");
 
 require_once(__DIR__ . "/import_news_article_data.php");
 
+require_once(__DIR__ . "/article_helpers.php");
+
 require_once(__DIR__ . "/get_helpers.php");
 
 require_once(__DIR__ . "/filter_helpers.php");

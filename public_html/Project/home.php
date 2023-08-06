@@ -1,11 +1,8 @@
-<?php require(__DIR__ . "/../../partials/nav.php"); ?>
+<?php 
+require(__DIR__ . "/../../partials/nav.php"); 
+?>
 
 <div class="container mt-3">
-    <div class="row">
-        <h1> News </h1>
-        <p> Welcome to the News page! </p>
-        <p> Here you can view all the news articles that have been created. </p>
-    </div>
     <div class="row">
         <form method="POST" id="filterForm" action="">
             <div class="col">
@@ -34,7 +31,6 @@
 </div>
 
 <?php
-
     // If user is not logged in redirect to login page
     if(!is_logged_in()){
         flash("You must be logged in to view this page", "warning");
@@ -48,71 +44,74 @@
     $countries = [];
     $isLiked = false;
 
-    // Check if the user has liked/unliked an article
-    if(isset($_POST['likeButton'])){
-        // Ensure that the user is logged in before processing the like/unlike request
-        if(!is_logged_in()){
-            flash("You must be logged in to like an article", "warning");
-            redirect("login.php");
-        }
+    if(isset($_GET['page'])){
+        $page = $_GET['page'];
+    } else {
+        $page = 1;
+    }
 
-        // Get the article ID and user ID
-        $article_id = $_POST['articleId'];
-        error_log("Article ID: " . var_export($article_id, true));
-        $user_id = get_user_id();
+    $no_of_records_per_page = $article_limit;
+    $offset = ($page-1) * $no_of_records_per_page;
+    $total_pages_sql = get_total_articles();
+    $total_pages = ceil($total_pages_sql / $no_of_records_per_page);
 
-        // Call the helper function to toggle the like
-        toggle_like($article_id, $user_id);
+    $articles = getPaginationArticles($page, $article_limit);
+
+    // Fetch the user's liked articles from the database
+    $userLikedArticles = get_user_liked_articles(get_user_id(), $article_limit);
+
+    if(isset($_SESSION['article_limit'])){
+        error_log("Session article limit: " . var_export($_SESSION['article_limit'], true));
+        $article_limit = $_SESSION['article_limit'];
+        $articles = getPaginationArticles($page, $article_limit);
+        $total_pages = ceil($total_pages_sql / $article_limit);
     }
     
-    if(isset($_SESSION['article_limit'])){
-        $article_limit = $_SESSION['article_limit'];
-        $articles = get_articles($article_limit);
-        error_log("Article Limit: " . var_export($articles, true));
-
-        // Erase the session variable after it has been used so that if the user enters another number of articles to display, it will be used instead of the previous one
-        unset($_SESSION['article_limit']);
-    }
-    // Check if the user has entered a number of articles to display
-    else if (isset($_POST['articleLimit'])) {
-        $article_limit = $_POST['articleLimit'];
-        $_SESSION['article_limit'] = $article_limit;
-        $articles = get_articles($article_limit);
-        error_log("Article Limit xxxx: " . var_export($articles, true));
-    }
-    else if(isset($_POST['searchInput'])){
-        $searchInput = $_POST['searchInput'];
-        $articles = searchTitle($article_limit, $searchInput);
+    if(isset($_SESSION['searchInput'])){
+        error_log("Session search input: " . var_export($_SESSION['searchInput'], true));
+        $searchInput = $_SESSION['searchInput'];
+        $articles = searchTitle($article_limit, $searchInput, $page);
+        $total_search_pages_sql = get_total_search_articles($searchInput);
+        $total_pages = ceil($total_search_pages_sql / $article_limit);
         // If the articles array is empty display a message that no articles were found
         if(empty($articles)){
             flash("No articles found", "info");
         }
         error_log("Search Input: " . var_export($articles, true));
     }
-    else{
-        $articles = get_articles($article_limit);
-        error_log("Articles yyyyy: " . var_export($articles, true));
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST'){
+        // Check if the user has entered a number of articles to display
+        if (isset($_POST['articleLimit'])) {
+            $article_limit = $_POST['articleLimit'];
+            $_SESSION['article_limit'] = $article_limit;
+            $articles = getPaginationArticles($page, $article_limit);
+            $total_pages = ceil($total_pages_sql / $article_limit);
+        }
+        
+        if(isset($_POST['searchInput'])){
+            $searchInput = $_POST['searchInput'];
+            $_SESSION['searchInput'] = $searchInput;
+            $articles = searchTitle($article_limit, $searchInput, $page);
+            $total_search_pages_sql = get_total_search_articles($searchInput);
+            $total_pages = ceil($total_search_pages_sql / $article_limit);
+            // If the articles array is empty display a message that no articles were found
+            if(empty($articles)){
+                flash("No articles found", "info");
+            }
+        }
+    
+        // Check if the user has liked/unliked an article
+        if(isset($_POST['likeButton'])){
+            $article_id = $_POST['articleId'];
+            $user_id = get_user_id();
+            toggle_like($article_id, $user_id);
+        }
     }
 
-    // Fetch all categories from the database
-    $categories = get_categories();
-
-    // Fetch all countries from the database
-    $countries = get_countries();
-
-    error_log("Categories: " . var_export($categories, true));
-    error_log("Countries: " . var_export($countries, true));
-
-    // Fetch the user's liked articles from the database
-    $userLikedArticles = get_user_liked_articles(get_user_id(), $article_limit);
-    error_log("User Liked Articles: " . var_export($userLikedArticles, true));
-
-    function convertDate($date){
-        $date = date_create($date);
-        return date_format($date, "m/d/Y");
-    }
 
 ?>
+<?php include_once (__DIR__ . "/../../lib/pagination.php"); ?>
 
 <div class="row row-cols-1 row-cols-md-3 g-4">
     <?php    

@@ -21,11 +21,6 @@ if(isset($_POST['likeButton'])){
     toggle_like($article_id, $user_id);
     redirect("profile.php?id=$userId");
 }
-
-function convertDate($date){
-    $date = date_create($date);
-    return date_format($date, "m/d/Y");
-}
 ?>
 <section>
     <div class="row">

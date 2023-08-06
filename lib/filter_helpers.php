@@ -1,11 +1,39 @@
 <?php
-function searchTitle($article_limit, $search){
+function searchTitle($article_limit, $search, $page = null){
     $db = getDB();
-    $query = "SELECT * FROM NewsArticles WHERE title LIKE '%$search%' ORDER BY created DESC LIMIT $article_limit";
+    if(isset($page)){
+        $offset = ($page - 1) * $article_limit;
+        $query = "SELECT * FROM NewsArticles WHERE title LIKE '%$search%' ORDER BY created DESC LIMIT :offset, :article_limit";
+        $stmt = $db->prepare($query);
+        $stmt->bindValue(":offset", $offset, PDO::PARAM_INT);
+        $stmt->bindValue(":article_limit", $article_limit, PDO::PARAM_INT);
+        try{
+            $stmt->execute();
+            $result = $stmt->fetchAll();
+            return $result;
+        } catch(PDOException $e){
+            error_log("Error fetching articles from DB: " . var_export($e, true));
+        }
+    } else {
+        $query = "SELECT * FROM NewsArticles WHERE title LIKE '%$search%' ORDER BY created DESC LIMIT $article_limit";
+        $stmt = $db->prepare($query);
+        try{
+            $stmt->execute();
+            $result = $stmt->fetchAll();
+            return $result;
+        } catch(PDOException $e){
+            error_log("Error fetching articles from DB: " . var_export($e, true));
+        }
+    }
+}
+
+function get_total_search_articles($search){
+    $db = getDB();
+    $query = "SELECT COUNT(*) as total FROM NewsArticles WHERE title LIKE '%$search%'";
     $stmt = $db->prepare($query);
     try{
         $stmt->execute();
-        $result = $stmt->fetchAll();
+        $result = $stmt->fetchColumn();
         return $result;
     } catch(PDOException $e){
         error_log("Error fetching articles from DB: " . var_export($e, true));
