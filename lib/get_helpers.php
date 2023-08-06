@@ -1,8 +1,8 @@
 <?php
-function get_articles($article_limit, $ids = [])
+function get_articles($article_limit = null, $ids = [])
 {
     $db = getDB();
-    if(!empty($ids)){
+    if(isset($article_limit) && !empty($ids)){
         $inClause = "AND id IN (" . implode(",", $ids) . ")";
         $query = "SELECT * FROM NewsArticles WHERE 1 $inClause ORDER BY created DESC LIMIT $article_limit";
         $stmt = $db->prepare($query);
@@ -15,7 +15,7 @@ function get_articles($article_limit, $ids = [])
             error_log("Error fetching articles from DB: " . var_export($e, true));
         }
     }
-    else{
+    else if(isset($article_limit) && $article_limit != null){
         error_log("get_articles article_limit: " . var_export($article_limit, true));
         $query = "SELECT * FROM NewsArticles ORDER BY created DESC LIMIT $article_limit";
         $stmt = $db->prepare($query);
@@ -26,6 +26,47 @@ function get_articles($article_limit, $ids = [])
         } catch(PDOException $e){
             error_log("Error fetching articles from DB: " . var_export($e, true));
         }
+    }
+    else{
+        $query = "SELECT * FROM NewsArticles ORDER BY created DESC";
+        $stmt = $db->prepare($query);
+        try{
+            $stmt->execute();
+            $result = $stmt->fetchAll();
+            return $result;
+        } catch(PDOException $e){
+            error_log("Error fetching articles from DB: " . var_export($e, true));
+        }
+    }
+}
+
+function getPaginationArticles($page = 1, $article_limit = null){
+    $db = getDB();
+    $offset = ($page - 1) * $article_limit;
+    $query = "SELECT * FROM NewsArticles ORDER BY created DESC LIMIT :offset, :article_limit";
+    $stmt = $db->prepare($query);
+    $stmt->bindValue(":offset", $offset, PDO::PARAM_INT);
+    $stmt->bindValue(":article_limit", $article_limit, PDO::PARAM_INT);
+
+    try{
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        return $result;
+    } catch(PDOException $e){
+        error_log("Error fetching articles from DB: " . var_export($e, true));
+    }
+}
+
+function get_total_articles(){
+    $db = getDB();
+    $query = "SELECT COUNT(*) as total FROM NewsArticles";
+    $stmt = $db->prepare($query);
+    try{
+        $stmt->execute();
+        $result = $stmt->fetchColumn();
+        return $result;
+    } catch(PDOException $e){
+        error_log("Error fetching articles from DB: " . var_export($e, true));
     }
 }
 

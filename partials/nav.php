@@ -42,7 +42,7 @@ session_start();
         <div class="collapse navbar-collapse" id="mynavbar">
             <ul class="navbar-nav me-auto">
                 <?php if (is_logged_in()) : ?>
-                    <li class="nav-item"><a class="nav-link" href="<?php echo get_url('home.php'); ?>">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="reset_filters.php">Home</a>
                     <li class="nav-item">
                         <?php 
                             $user_id = get_user_id();
@@ -78,3 +78,14 @@ session_start();
         </div>
     </div>
 </nav>
+
+<script>
+    function resetFilter(){
+        <?php 
+            if(isset($_SESSION['searchInput']) || isset($_SESSION['article_limit'])){
+                unset($_SESSION['searchInput']);
+                unset($_SESSION['article_limit']);
+            }    
+        ?>
+    }
+</script>

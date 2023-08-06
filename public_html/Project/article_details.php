@@ -32,11 +32,6 @@
 
     // Check if the user has liked the article
     $isLiked = in_array($id, array_column($userLikedArticles, 'news_id'));
-
-    function convertDate($date){
-        $date = date_create($date);
-        return date_format($date, "m/d/Y");
-    }
 ?>
 
 <div class="container-fluid">
