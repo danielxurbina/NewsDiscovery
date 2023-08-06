@@ -21,15 +21,37 @@
 <div class="row">
     <nav aria-label="page navigation">
         <ul class="pagination justify-content-center">
-            <li class="page-item <?php disable_prev(($page - 1)) ?>">
-                <a class="page-link" href="?<?php se(persistQueryString($page - 1)); ?>" tabindex="-1">Previous</a>
-            </li>
-            <?php for ($i = 0; $i < $total_pages; $i++) : ?>
-                <li class="page-item <?php set_active($page, $i); ?>"><a class="page-link" href="?<?php se(persistQueryString($i + 1)); ?>"><?php echo ($i + 1); ?></a></li>
-            <?php endfor; ?>
-            <li class="page-item <?php disable_next($page); ?>">
-                <a class="page-link" href="?<?php se(persistQueryString($page + 1)); ?>">Next</a>
-            </li>
+            <?php if(isset($_GET['articleLimit'])) : ?>
+                <li class="page-item <?php disable_prev(($page - 1)) ?>">
+                    <a class="page-link" href="?page=<?php echo($page - 1); ?>&articleLimit=<?php echo($article_limit);?>" tabindex="-1">Previous</a>
+                </li>
+                <?php for($i = 0; $i < $total_pages; $i++) : ?>
+                    <li class="page-item <?php set_active($page, $i); ?>"><a class="page-link" href="?page=<?php echo($i + 1); ?>&articleLimit=<?php echo($article_limit);?>"><?php echo($i + 1); ?></a></li>
+                <?php endfor; ?>
+                <li class="page-item <?php disable_next($page); ?>">
+                    <a class="page-link" href="?page=<?php echo($page + 1); ?>&articleLimit=<?php echo($article_limit);?>">Next</a>
+                </li>
+            <?php elseif(isset($_GET['searchInput'])) : ?>
+                <li class="page-item <?php disable_prev(($page - 1)) ?>">
+                    <a class="page-link" href="?page=<?php echo($page - 1); ?>&searchInput=<?php echo($searchInput);?>" tabindex="-1">Previous</a>
+                </li>
+                <?php for($i = 0; $i < $total_pages; $i++) : ?>
+                    <li class="page-item <?php set_active($page, $i); ?>"><a class="page-link" href="?page=<?php echo($i + 1); ?>&searchInput=<?php echo($searchInput);?>"><?php echo($i + 1); ?></a></li>
+                <?php endfor; ?>
+                <li class="page-item <?php disable_next($page); ?>">
+                    <a class="page-link" href="?page=<?php echo($page + 1); ?>&searchInput=<?php echo($searchInput);?>">Next</a>
+                </li>
+            <?php else : ?>
+                <li class="page-item <?php disable_prev(($page - 1)) ?>">
+                    <a class="page-link" href="?page=<?php echo($page - 1); ?>" tabindex="-1">Previous</a>
+                </li>
+                <?php for($i = 0; $i < $total_pages; $i++) : ?>
+                    <li class="page-item <?php set_active($page, $i); ?>"><a class="page-link" href="?page=<?php echo($i + 1); ?>"><?php echo($i + 1); ?></a></li>
+                <?php endfor; ?>
+                <li class="page-item <?php disable_next($page); ?>">
+                    <a class="page-link" href="?page=<?php echo($page + 1); ?>">Next</a>
+                </li>
+            <?php endif; ?>
         </ul>
     </nav>
 </div>

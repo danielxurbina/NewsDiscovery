@@ -33,6 +33,7 @@ session_start();
 <!-- include css and js files -->
 <script src="<?php echo get_url('helpers.js'); ?>"></script>
 <link rel="stylesheet" href="<?php echo get_url('styles.css'); ?>">
+
 <nav class="navbar navbar-expand-sm navbar-dark" style="background-color: #323357;">
     <div class="container-fluid" id="navbarNav">
         <a class="navbar-brand" href="<?php echo get_url('home.php'); ?>">News Discovery</a>
@@ -41,17 +42,26 @@ session_start();
         </button>
         <div class="collapse navbar-collapse" id="mynavbar">
             <ul class="navbar-nav me-auto">
-                <?php if (is_logged_in()) : ?>
+                <?php if(is_logged_in()) : ?>
                     <li class="nav-item"><a class="nav-link" href="reset_filters.php">Home</a>
-                    <li class="nav-item">
-                        <?php 
-                            $user_id = get_user_id();
-                            $profile_link = get_url('profile.php?id=' . $user_id);
-                        ?>
-                        <a class="nav-link" href="<?php echo $profile_link; ?>">Profile</a>
-                    </li>
-                    <li class="nav-item"><a class="nav-link" href="<?php echo get_url('my_saved_articles.php'); ?>">Saved Articles</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?php echo get_url('news_article_creation.php'); ?>">Create Article</a></li>
+                    <!-- Icon dropdown for user links -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li class="nav-item">
+                                <?php 
+                                    $user_id = get_user_id();
+                                    $profile_link = get_url('profile.php?id=' . $user_id);
+                                ?>
+                                <a class="dropdown-item" href="<?php echo $profile_link; ?>">Profile</a>
+                            </li>
+                            <li class="nav-item"><a class="dropdown-item" href="<?php echo get_url('my_saved_articles.php'); ?>">Saved Articles</a></li>
+                            <li class="nav-item"><a class="dropdown-item" href="<?php echo get_url('logout.php'); ?>">Logout</a></li>
+                        </ul>
+                    </li>
                 <?php endif; ?>
                 <?php if (!is_logged_in()) : ?>
                     <li class="nav-item"><a class="nav-link" href="<?php echo get_url('login.php'); ?>">Login</a></li>
@@ -70,22 +80,8 @@ session_start();
                             <li class="nav-item"><a class="dropdown-item" href="<?php echo get_url('admin/assign_likes_to_articles.php');?>">Assign Likes To Articles</a></li>
                         </ul>
                     </li>
-                <?php endif; ?>
-                <?php if (is_logged_in()) : ?>
-                    <li class="nav-item"><a class="nav-link" href="<?php echo get_url('logout.php'); ?>">Logout</a></li>
-                <?php endif; ?>
-            </ul>
+                    <?php endif; ?>
+                </ul>
         </div>
     </div>
 </nav>
-
-<script>
-    function resetFilter(){
-        <?php 
-            if(isset($_SESSION['searchInput']) || isset($_SESSION['article_limit'])){
-                unset($_SESSION['searchInput']);
-                unset($_SESSION['article_limit']);
-            }    
-        ?>
-    }
-</script>

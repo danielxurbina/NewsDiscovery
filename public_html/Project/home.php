@@ -1,31 +1,30 @@
 <?php 
 require(__DIR__ . "/../../partials/nav.php"); 
 ?>
+<style>
+    /* Custom CSS to match button height with text input height */
+    #searchButton {
+        height: 38px;
+    }
+</style>
 
-<div class="container mt-3">
-    <div class="row">
-        <form method="POST" id="filterForm" action="">
-            <div class="col">
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="linkflexSwitchDefault" onclick="toggleInput('articleInput')">
-                    <label class="form-check-label" for="flexSwitchDefault">Switch to enter the number of articles to display</label>
-                </div> 
-                <div id="articleInput" style="display: none;">
-                    <?php render_input(["type"=>"text", "id"=>"articleLimit", "placeholder"=>"Enter a number of articles to display (1-100)", "name"=>"articleLimit", "rules"=>["required"=>"false"]]);?>
-                    <button type="submit" class="btn btn-primary" onclick="validateFilter()">Submit</button>
-                </div>
+<div class="row">
+    <div class="mx-auto col-10 col-md-8 col-lg-6">
+        <form method="GET" id="filterForm" action="home.php">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="linkflexSwitchDefault" onclick="toggleInput('articleInput')">
+                <label class="form-check-label" for="flexSwitchDefault">Switch to enter the number of articles to display</label>
+            </div>
+            <div id="articleInput" style="display: none;">
+                <?php render_input(["type"=>"text", "id"=>"articleLimit", "placeholder"=>"Enter a number of articles to display (1-100)", "name"=>"articleLimit", "rules"=>["required"=>"false"]]);?>
+                <button type="submit" class="btn btn-primary" onclick="validateFilter()">Submit</button>
             </div>
         </form>
-    </div>
-    <div class="row">
-        <div class="col">
-            <form method="POST" id="searchForm" action="">
+        <div class="d-flex justify-content-between">
+            <form method="GET" id="searchForm" action="home.php" class="flex-grow-1">
                 <input class="form-control" id="searchInput" name="searchInput" type="text" placeholder="Search..">
             </form>
-        </div>
-        <div class="col">
-            <button type="button" id="searchButton" class="btn btn-primary" onclick="searchFunction()">Search</button>
-
+            <button type="button" id="searchButton" class="btn btn-primary ml-2" onclick="searchFunction()">Search</button>
         </div>
     </div>
 </div>
@@ -38,77 +37,51 @@ require(__DIR__ . "/../../partials/nav.php");
     }
 
     // Set the default number of articles to display
-    $article_limit = 10;
+    $article_limit = 0;
     $articles = [];
     $categories = [];
     $countries = [];
     $isLiked = false;
-
+    $no_of_records_per_page = 10; $total_pages = 0;
+    $total_pages_sql = get_total_articles();
+    
     if(isset($_GET['page'])){
         $page = $_GET['page'];
     } else {
         $page = 1;
     }
-
-    $no_of_records_per_page = $article_limit;
-    $offset = ($page-1) * $no_of_records_per_page;
-    $total_pages_sql = get_total_articles();
-    $total_pages = ceil($total_pages_sql / $no_of_records_per_page);
-
-    $articles = getPaginationArticles($page, $article_limit);
-
-    // Fetch the user's liked articles from the database
-    $userLikedArticles = get_user_liked_articles(get_user_id(), $article_limit);
-
-    if(isset($_SESSION['article_limit'])){
-        error_log("Session article limit: " . var_export($_SESSION['article_limit'], true));
-        $article_limit = $_SESSION['article_limit'];
+    
+    // check if the user has submitted the article limit form
+    if(isset($_GET['articleLimit'])){
+        $article_limit = $_GET['articleLimit'];
         $articles = getPaginationArticles($page, $article_limit);
         $total_pages = ceil($total_pages_sql / $article_limit);
     }
-    
-    if(isset($_SESSION['searchInput'])){
-        error_log("Session search input: " . var_export($_SESSION['searchInput'], true));
-        $searchInput = $_SESSION['searchInput'];
-        $articles = searchTitle($article_limit, $searchInput, $page);
+    else if(isset($_GET['searchInput'])){
+        $searchInput = $_GET['searchInput'];
+        $articles = searchTitle($no_of_records_per_page, $searchInput, $page);
         $total_search_pages_sql = get_total_search_articles($searchInput);
-        $total_pages = ceil($total_search_pages_sql / $article_limit);
+        $total_pages = ceil($total_search_pages_sql / $no_of_records_per_page);
         // If the articles array is empty display a message that no articles were found
         if(empty($articles)){
             flash("No articles found", "info");
         }
-        error_log("Search Input: " . var_export($articles, true));
     }
-
-    if($_SERVER['REQUEST_METHOD'] == 'POST'){
-        // Check if the user has entered a number of articles to display
-        if (isset($_POST['articleLimit'])) {
-            $article_limit = $_POST['articleLimit'];
-            $_SESSION['article_limit'] = $article_limit;
-            $articles = getPaginationArticles($page, $article_limit);
-            $total_pages = ceil($total_pages_sql / $article_limit);
-        }
-        
-        if(isset($_POST['searchInput'])){
-            $searchInput = $_POST['searchInput'];
-            $_SESSION['searchInput'] = $searchInput;
-            $articles = searchTitle($article_limit, $searchInput, $page);
-            $total_search_pages_sql = get_total_search_articles($searchInput);
-            $total_pages = ceil($total_search_pages_sql / $article_limit);
-            // If the articles array is empty display a message that no articles were found
-            if(empty($articles)){
-                flash("No articles found", "info");
-            }
-        }
+    else{
+        $articles = getPaginationArticles($page, $no_of_records_per_page);
+        $total_pages_sql = get_total_articles();
+        $total_pages = ceil($total_pages_sql / $no_of_records_per_page);
+    }
     
-        // Check if the user has liked/unliked an article
-        if(isset($_POST['likeButton'])){
-            $article_id = $_POST['articleId'];
-            $user_id = get_user_id();
-            toggle_like($article_id, $user_id);
-        }
+    // Check if the user has liked/unliked an article
+    if(isset($_POST['likeButton'])){
+        $article_id = $_POST['articleId'];
+        $user_id = get_user_id();
+        toggle_like($article_id, $user_id);
     }
-
+    
+    // Fetch the user's liked articles from the database
+    $userLikedArticles = get_user_liked_articles(get_user_id(), $article_limit);
 
 ?>
 <?php include_once (__DIR__ . "/../../lib/pagination.php"); ?>
@@ -147,11 +120,19 @@ require(__DIR__ . "/../../partials/nav.php");
                         </button>
                         <?php if ($article['created_by'] == get_user_id()) : ?>
                             <a href="article_edit.php?id=<?php echo $article['id']; ?>" class="btn btn-outline-warning">Edit</a>
-                            <a href="article_delete.php?id=<?php echo $article['id']; ?>" class="btn btn-outline-danger">Delete</a>
+                            <?php if(isset($_GET['articleLimit'])) : ?>
+                                <a href="article_delete.php?id=<?php echo $article['id']; ?>&articleLimit=<?php echo $_GET['articleLimit']; ?>" class="btn btn-outline-danger">Delete</a>
+                            <?php else : ?>
+                                <a href="article_delete.php?id=<?php echo $article['id']; ?>" class="btn btn-outline-danger">Delete</a>
+                            <?php endif; ?>
                         <?php endif; ?>
                         <?php if(has_role("Admin") && $article['created_by'] != get_user_id()) : ?>
                             <a href="article_edit.php?id=<?php echo $article['id']; ?>" class="btn btn-outline-warning">Edit</a>
-                            <a href="article_delete.php?id=<?php echo $article['id']; ?>" class="btn btn-outline-danger">Delete</a>
+                            <?php if(isset($_GET['articleLimit'])) : ?>
+                                <a href="article_delete.php?id=<?php echo $article['id']; ?>&articleLimit=<?php echo $_GET['articleLimit']; ?>" class="btn btn-outline-danger">Delete</a>
+                            <?php else : ?>
+                                <a href="article_delete.php?id=<?php echo $article['id']; ?>" class="btn btn-outline-danger">Delete</a>
+                            <?php endif; ?>
                         <?php endif ?>
                     </div>
                     <div class="card-footer">
