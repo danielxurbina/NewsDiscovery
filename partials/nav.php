@@ -43,7 +43,7 @@ session_start();
         <div class="collapse navbar-collapse" id="mynavbar">
             <ul class="navbar-nav me-auto">
                 <?php if(is_logged_in()) : ?>
-                    <li class="nav-item"><a class="nav-link" href="reset_filters.php">Home</a>
+                    <li class="nav-item"><a class="nav-link" href="<?php echo get_url('home.php')?>">Home</a>
                     <li class="nav-item"><a class="nav-link" href="<?php echo get_url('news_article_creation.php'); ?>">Create Article</a></li>
                     <!-- Icon dropdown for user links -->
                     <li class="nav-item dropdown">
