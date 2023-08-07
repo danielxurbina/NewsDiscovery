@@ -11,7 +11,10 @@ if(!is_logged_in()){
 <?php 
     // Extract id from url
     $id = $_GET['id'];
-    $article_limit = $_GET['articleLimit'];
+    if(isset($_GET['articleLimit'])){
+        $article_limit = $_GET['articleLimit'];
+        error_log("Article Limit: " . var_export($article_limit, true));
+    }
     $canDelete = false;
 
     // Fetch from the DB with the ID gotten from the URL
@@ -21,7 +24,6 @@ if(!is_logged_in()){
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
     error_log("Result: " . var_export($result, true));
-    error_log("Article Limit: " . var_export($article_limit, true));
     // Check if the article exists
     if (!$result) {
         flash("Article does not exist", "warning");
