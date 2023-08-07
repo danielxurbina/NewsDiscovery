@@ -112,6 +112,8 @@ function process_articles($result)
     insert_articles_into_db($db, $articles, $mappings);
 
     flash("News articles data refreshed successfully", "success");
+
+    redirect("home.php");
 }
 
 $action = se($_POST, "action", "", false);
