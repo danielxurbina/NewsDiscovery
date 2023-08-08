@@ -1,22 +1,22 @@
-## Project Name: News Data API Project
-### Project Summary: This project will primarily use data pull from an API to do something project-specific.
-### Github Link: [https://github.com/danielxurbina/du35-IT202-450/tree/prod/public_html/Project]
-### Project Board Link: [https://github.com/users/danielxurbina/projects/2]
-### Website Link: [https://du35-prod.herokuapp.com/Project]
-### API Link: [https://rapidapi.com/algodom-media-algodom-media-default/api/newsdata2/details]
-### Your Name: Daniel Urbina
+## News Discovery
+### NewsDiscovery is an API-driven project that integrates external news sources, allowing users to explore curated news articles and even contribute their own content, offering a comprehensive news management experience.
+### [Github Link](https://github.com/danielxurbina/du35-IT202-450/tree/prod/public_html/Project)
+### [Project Board Link](https://github.com/users/danielxurbina/projects/2)
+### [Website Link](https://du35-prod.herokuapp.com/Project)
+### [API Link](https://rapidapi.com/algodom-media-algodom-media-default/api/newsdata2/details)
+### Daniel Urbina
 
  
  
 ### Proposal Checklist and Evidence
 
 - Milestone 1
-  - [https://github.com/danielxurbina/du35-IT202-450/blob/Milestone1/public_html/Project/milestone1.md]
+  - [Milestone 1 markdown file](https://github.com/danielxurbina/du35-IT202-450/blob/Milestone1/public_html/Project/milestone1.md)
 - Milestone 2
-  - (add link to milestone2.md from milestone2 branch)
+  - [Milestone 2 markdown file](https://github.com/danielxurbina/du35-IT202-450/blob/Milestone2/public_html/milestone2.md)
 - Milestone 3
-  - (add link to milestone3.md from milestone3 branch)
+  - [Milestone 3 markdown file](https://github.com/danielxurbina/du35-IT202-450/blob/Milestone3/public_html/milestone3.md)
 - Milestone 4
-  - (add link to milestone4.md from milestone4 branch)
+  - (none)
 - Demo Link
-  - (add youtube link to unlisted or public demo) Note you'll need to verify your youtube account to upload videos > 15mins
+  - [NewsDiscovery Youtube Demo](https://www.youtube.com/watch?v=9RA_UZhssyI)
